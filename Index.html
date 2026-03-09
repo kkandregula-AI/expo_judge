@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expo Stall Feedback Navigator</title>
+<style>
+:root{
+  --bg:#f6f8fc; --card:#fff; --text:#182230; --muted:#667085; --line:#d0d5dd;
+  --accent:#175cd3; --accent-soft:#eef4ff; --ok:#067647; --warn:#b54708;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:980px;margin:0 auto;padding:14px}
+.card{background:var(--card);border:1px solid #eaecf0;border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 8px 24px rgba(16,24,40,.06)}
+h1,h2{margin:0 0 8px}
+p{margin:0}
+.muted{color:var(--muted)}
+.topbar{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.badge{padding:7px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:.9rem}
+.status{font-size:.9rem;color:var(--ok);font-weight:700}
+.row{display:grid;grid-template-columns:1fr 1fr 140px;gap:10px;margin-bottom:10px}
+.row2{display:grid;grid-template-columns:1fr 160px;gap:10px;margin-bottom:10px}
+@media (max-width:700px){.row,.row2{grid-template-columns:1fr}}
+label{display:block;font-size:.9rem;font-weight:700;margin:0 0 6px}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:#fff}
+textarea{min-height:84px;resize:vertical}
+.criterion{border:1px solid #eaecf0;border-radius:14px;padding:12px;margin-bottom:10px;background:#fcfcfd}
+.criterion-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.criterion-name{font-weight:800}
+.pill{padding:6px 10px;border-radius:999px;background:#f2f4f7;font-size:.85rem;font-weight:800}
+.choice-row{display:flex;gap:8px;flex-wrap:wrap}
+.choice{min-width:44px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;font-weight:800;cursor:pointer}
+.choice.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+button{border:none;border-radius:12px;padding:12px 14px;font-weight:800;font-size:.95rem;cursor:pointer}
+.primary{background:var(--accent);color:#fff}
+.soft{background:var(--accent-soft);color:var(--accent)}
+.ghost{background:#fff;border:1px solid var(--line);color:var(--text)}
+.success{background:#ecfdf3;color:var(--ok);border:1px solid #abefc6}
+.danger{background:#fff4ed;color:var(--warn);border:1px solid #fecdca}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.metric{border:1px solid #eaecf0;border-radius:14px;padding:12px;background:#f8fafc}
+.metric .big{font-size:1.5rem;font-weight:900;margin-top:4px}
+.list{display:grid;gap:10px}
+.item{border:1px solid #eaecf0;border-radius:14px;padding:12px}
+.item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:6px}
+.tiny{font-size:.86rem;color:var(--muted)}
+.empty{border:2px dashed #d0d5dd;border-radius:14px;padding:16px;text-align:center;color:var(--muted)}
+@media print{.btns{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="card">
+  <div class="topbar">
+    <div>
+      <h1>Expo Stall Feedback Navigator</h1>
+      <p class="muted">Save → Next Stall → Navigate Back / Forward</p>
+    </div>
+    <div>
+      <div class="badge" id="stallCounter">New Stall</div>
+      <div class="status" id="saveStatus">Not saved yet</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="btns" style="margin-bottom:10px">
+    <button class="ghost" id="prevBtn" type="button">◀ Previous</button>
+    <button class="ghost" id="nextBtn" type="button">Next ▶</button>
+    <button class="ghost" id="newBtn" type="button">New Blank Stall</button>
+  </div>
+
+  <div class="row">
+    <div>
+      <label for="stallName">Stall Name</label>
+      <input id="stallName" placeholder="e.g. Smart Irrigation System">
+    </div>
+    <div>
+      <label for="department">Department</label>
+      <input id="department" placeholder="e.g. CSE / ECE / Mechanical">
+    </div>
+    <div>
+      <label for="stallNo">Stall No</label>
+      <input id="stallNo" placeholder="e.g. A-12">
+    </div>
+  </div>
+
+  <div class="row2">
+    <div>
+      <label for="team">Team</label>
+      <input id="team" placeholder="Optional">
+    </div>
+    <div>
+      <label for="verdict">Verdict</label>
+      <select id="verdict">
+        <option>Excellent</option>
+        <option>Very Good</option>
+        <option>Good</option>
+        <option>Promising</option>
+        <option>Needs Improvement</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="criteria"></div>
+
+  <label for="strengths">Strengths</label>
+  <textarea id="strengths"></textarea>
+
+  <label for="improvements">Improvements</label>
+  <textarea id="improvements"></textarea>
+
+  <label for="notes">Notes</label>
+  <textarea id="notes"></textarea>
+
+  <div class="btns">
+    <button class="primary" id="saveBtn" type="button">Save</button>
+    <button class="success" id="saveNextBtn" type="button">Save & Next</button>
+    <button class="soft" id="remarkBtn" type="button">Generate Remark</button>
+    <button class="danger" id="deleteBtn" type="button">Delete</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Live Summary</h2>
+  <div class="metrics">
+    <div class="metric">
+      <div class="tiny">Total Score</div>
+      <div class="big"><span id="total">20</span> / 25</div>
+    </div>
+    <div class="metric">
+      <div class="tiny">Average</div>
+      <div class="big"><span id="average">4.0</span> / 5</div>
+    </div>
+  </div>
+
+  <div style="margin-top:12px">
+    <label for="remark">Formal Judge Remark</label>
+    <textarea id="remark" placeholder="Generated remark appears here"></textarea>
+  </div>
+
+  <div class="btns">
+    <button class="ghost" id="exportBtn" type="button">Export CSV</button>
+    <button class="ghost" id="printBtn" type="button">Print / Save PDF</button>
+    <button class="danger" id="clearAllBtn" type="button">Clear All Saved</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>All Saved Stalls</h2>
+  <div id="list" class="list"></div>
+</div>
+
+</div>
+
+<script>
+const storageKey = "expo_stall_feedback_real_v1";
+const criteria = [
+  ["innovation","Innovation"],
+  ["practical","Practical Use"],
+  ["technical","Technical Quality"],
+  ["presentation","Presentation"],
+  ["future","Future Scope"]
+];
+let currentIndex = -1;
+
+function init(){
+  buildCriteria();
+  attachEvents();
+  resetForm();
+  render();
+  updateSummary();
+  updateHeader();
+}
+
+function buildCriteria(){
+  const box = document.getElementById("criteria");
+  box.innerHTML = "";
+  criteria.forEach(([key, label]) => {
+    const div = document.createElement("div");
+    div.className = "criterion";
+    div.innerHTML = `
+      <div class="criterion-head">
+        <div class="criterion-name">${label}</div>
+        <div class="pill"><span id="${key}Val">4</span>/5</div>
+      </div>
+      <div class="choice-row" id="${key}Choices"></div>
+    `;
+    box.appendChild(div);
+    const row = div.querySelector(".choice-row");
+    for(let i=1;i<=5;i++){
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "choice" + (i===4 ? " active" : "");
+      b.innerText = i;
+      b.addEventListener("click", () => setScore(key, i));
+      row.appendChild(b);
+    }
+  });
+}
+
+function attachEvents(){
+  document.getElementById("saveBtn").addEventListener("click", () => save(false));
+  document.getElementById("saveNextBtn").addEventListener("click", () => save(true));
+  document.getElementById("remarkBtn").addEventListener("click", generateRemark);
+  document.getElementById("prevBtn").addEventListener("click", prev);
+  document.getElementById("nextBtn").addEventListener("click", next);
+  document.getElementById("newBtn").addEventListener("click", newStall);
+  document.getElementById("deleteBtn").addEventListener("click", deleteStall);
+  document.getElementById("exportBtn").addEventListener("click", exportCSV);
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  document.getElementById("clearAllBtn").addEventListener("click", clearAll);
+}
+
+function loadEntries(){
+  try { return JSON.parse(localStorage.getItem(storageKey) || "[]"); }
+  catch { return []; }
+}
+
+function saveEntries(arr){
+  localStorage.setItem(storageKey, JSON.stringify(arr));
+}
+
+function setScore(name, val){
+  document.getElementById(name + "Val").innerText = val;
+  const row = document.getElementById(name + "Choices");
+  row.querySelectorAll(".choice").forEach(b => {
+    b.classList.toggle("active", b.innerText == String(val));
+  });
+  updateSummary();
+  setStatus("Changes not saved");
+}
+
+function updateSummary(){
+  let total = 0;
+  criteria.forEach(([key]) => total += Number(document.getElementById(key + "Val").innerText));
+  const avg = (total / criteria.length).toFixed(1);
+  document.getElementById("total").innerText = total;
+  document.getElementById("average").innerText = avg;
+}
+
+function getData(){
+  const d = {
+    stallName: document.getElementById("stallName").value.trim(),
+    department: document.getElementById("department").value.trim(),
+    stallNo: document.getElementById("stallNo").value.trim(),
+    team: document.getElementById("team").value.trim(),
+    verdict: document.getElementById("verdict").value,
+    strengths: document.getElementById("strengths").value.trim(),
+    improvements: document.getElementById("improvements").value.trim(),
+    notes: document.getElementById("notes").value.trim(),
+    remark: document.getElementById("remark").value.trim(),
+    total: Number(document.getElementById("total").innerText),
+    average: Number(document.getElementById("average").innerText),
+    createdAt: new Date().toLocaleString()
+  };
+  criteria.forEach(([key]) => d[key] = Number(document.getElementById(key + "Val").innerText));
+  return d;
+}
+
+function fillForm(d){
+  document.getElementById("stallName").value = d.stallName || "";
+  document.getElementById("department").value = d.department || "";
+  document.getElementById("stallNo").value = d.stallNo || "";
+  document.getElementById("team").value = d.team || "";
+  document.getElementById("verdict").value = d.verdict || "Excellent";
+  document.getElementById("strengths").value = d.strengths || "";
+  document.getElementById("improvements").value = d.improvements || "";
+  document.getElementById("notes").value = d.notes || "";
+  document.getElementById("remark").value = d.remark || "";
+  criteria.forEach(([key]) => setScore(key, d[key] || 4));
+  updateSummary();
+}
+
+function resetForm(){
+  document.getElementById("stallName").value = "";
+  document.getElementById("department").value = "";
+  document.getElementById("stallNo").value = "";
+  document.getElementById("team").value = "";
+  document.getElementById("verdict").value = "Excellent";
+  document.getElementById("strengths").value = "";
+  document.getElementById("improvements").value = "";
+  document.getElementById("notes").value = "";
+  document.getElementById("remark").value = "";
+  criteria.forEach(([key]) => setScore(key, 4));
+  updateSummary();
+}
+
+function save(goNext){
+  const d = getData();
+  if(!d.stallName){
+    alert("Enter stall name");
+    return;
+  }
+  if(!d.remark){
+    d.remark = buildRemark(d.average);
+    document.getElementById("remark").value = d.remark;
+  }
+
+  const arr = loadEntries();
+  if(currentIndex === -1){
+    arr.push(d);
+    currentIndex = arr.length - 1;
+  } else {
+    d.createdAt = arr[currentIndex].createdAt || d.createdAt;
+    arr[currentIndex] = d;
+  }
+  saveEntries(arr);
+  render();
+  setStatus("Saved");
+  updateHeader();
+
+  if(goNext){
+    currentIndex = -1;
+    resetForm();
+    updateHeader();
+    setStatus("Saved. Ready for next stall");
+  }
+}
+
+function newStall(){
+  currentIndex = -1;
+  resetForm();
+  updateHeader();
+  setStatus("New blank stall");
+}
+
+function prev(){
+  const arr = loadEntries();
+  if(arr.length === 0){
+    alert("No saved stalls yet");
+    return;
+  }
+  if(currentIndex === -1) currentIndex = arr.length - 1;
+  else currentIndex = Math.max(0, currentIndex - 1);
+  fillForm(arr[currentIndex]);
+  updateHeader();
+  setStatus("Viewing saved stall");
+}
+
+function next(){
+  const arr = loadEntries();
+  if(arr.length === 0){
+    alert("No saved stalls yet");
+    return;
+  }
+  if(currentIndex === -1) currentIndex = 0;
+  else currentIndex = Math.min(arr.length - 1, currentIndex + 1);
+  fillForm(arr[currentIndex]);
+  updateHeader();
+  setStatus("Viewing saved stall");
+}
+
+function deleteStall(){
+  const arr = loadEntries();
+  if(currentIndex === -1){
+    alert("Open a saved stall first to delete it");
+    return;
+  }
+  if(!confirm("Delete this saved stall?")) return;
+  arr.splice(currentIndex, 1);
+  saveEntries(arr);
+  if(arr.length === 0){
+    currentIndex = -1;
+    resetForm();
+  } else {
+    currentIndex = Math.min(currentIndex, arr.length - 1);
+    fillForm(arr[currentIndex]);
+  }
+  render();
+  updateHeader();
+  setStatus("Deleted");
+}
+
+function openStall(i){
+  const arr = loadEntries();
+  currentIndex = i;
+  fillForm(arr[i]);
+  updateHeader();
+  setStatus("Viewing saved stall");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function render(){
+  const arr = loadEntries();
+  const box = document.getElementById("list");
+  if(arr.length === 0){
+    box.innerHTML = '<div class="empty">No stalls saved yet</div>';
+    return;
+  }
+  box.innerHTML = arr.map((s,i) => `
+    <div class="item">
+      <div class="item-top">
+        <div>
+          <b>${escapeHtml(s.stallName)}</b>
+          <div class="tiny">${escapeHtml(s.department || "")} ${s.stallNo ? "• " + escapeHtml(s.stallNo) : ""}</div>
+        </div>
+        <button class="ghost open-btn" data-index="${i}" type="button">Open</button>
+      </div>
+      <div class="tiny">${escapeHtml(s.verdict || "")} • ${s.total || 0}/25</div>
+    </div>
+  `).join("");
+  box.querySelectorAll(".open-btn").forEach(btn => {
+    btn.addEventListener("click", () => openStall(Number(btn.dataset.index)));
+  });
+}
+
+function buildRemark(avg){
+  if(avg > 4.5) return "Excellent project with strong implementation and practical relevance.";
+  if(avg > 4.0) return "Very good project with clear concept and useful application.";
+  if(avg > 3.0) return "Promising project with good potential.";
+  return "Sincere effort. Further improvement recommended.";
+}
+
+function generateRemark(){
+  const avg = Number(document.getElementById("average").innerText);
+  document.getElementById("remark").value = buildRemark(avg);
+  setStatus("Remark generated");
+}
+
+function updateHeader(){
+  const arr = loadEntries();
+  document.getElementById("stallCounter").innerText = currentIndex === -1 ? "New Stall" : `Stall ${currentIndex + 1} of ${arr.length}`;
+}
+
+function setStatus(msg){
+  document.getElementById("saveStatus").innerText = msg;
+}
+
+function clearAll(){
+  if(!confirm("Clear all saved stall feedback?")) return;
+  localStorage.removeItem(storageKey);
+  currentIndex = -1;
+  resetForm();
+  render();
+  updateHeader();
+  setStatus("All saved feedback cleared");
+}
+
+function exportCSV(){
+  const arr = loadEntries();
+  if(arr.length === 0){
+    alert("No saved stalls to export");
+    return;
+  }
+  const headers = ["Stall Name","Department","Stall No","Team","Verdict","Innovation","Practical Use","Technical Quality","Presentation","Future Scope","Total","Average","Strengths","Improvements","Notes","Remark","Created At"];
+  const rows = arr.map(s => [s.stallName,s.department,s.stallNo,s.team,s.verdict,s.innovation,s.practical,s.technical,s.presentation,s.future,s.total,s.average,s.strengths,s.improvements,s.notes,s.remark,s.createdAt]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? "").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "expo-stall-feedback.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+  setStatus("CSV exported");
+}
+
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+init();
+</script>
+</body>
+</html>
