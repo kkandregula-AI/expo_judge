@@ -3,61 +3,89 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Expo Judge Pro v8</title>
-<meta name="description" content="Official academic evaluation report app for engineering expo judging with strict PDF layout." />
+<title>Expo Judge Pro v8.1</title>
+<meta name="description" content="Enhanced expo judging system with durable local data retention, draft recovery, ranking, awards, CSV export, and structured PDF report." />
+<meta name="theme-color" content="#1d4ed8" />
 <style>
-  :root{
-    --bg:#f4f7fb; --card:#fff; --text:#172033; --muted:#667085; --line:#d8dee8;
-    --primary:#1d4ed8; --primary-soft:#eaf1ff; --success:#15803d; --success-soft:#edfdf3;
-    --warn:#b45309; --warn-soft:#fff7ed; --danger:#b42318; --danger-soft:#fff1f3;
-    --shadow:0 10px 28px rgba(16,24,40,.07); --star:#f59e0b;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(180deg,#eaf1ff 0,#f4f7fb 220px);color:var(--text)}
-  .wrap{max-width:1180px;margin:0 auto;padding:16px}
-  .card{background:var(--card);border:1px solid #e7ebf0;border-radius:18px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
-  h1,h2,h3{margin:0 0 10px}
-  p{margin:0}
-  .muted{color:var(--muted)} .tiny{font-size:.86rem;color:var(--muted)}
-  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-  .badge{display:inline-block;padding:7px 12px;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-weight:800;font-size:.9rem}
-  .grid-2{display:grid;grid-template-columns:1.12fr .88fr;gap:16px}
-  @media (max-width:980px){.grid-2{grid-template-columns:1fr}}
-  .row{display:grid;grid-template-columns:1fr 1fr 140px;gap:10px;margin-bottom:10px}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-  @media (max-width:760px){.row,.row2{grid-template-columns:1fr}}
-  label{display:block;font-weight:700;font-size:.92rem;margin:0 0 6px}
-  input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:15px}
-  textarea{min-height:90px;resize:vertical}
-  .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-  button{border:none;border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer}
-  .primary{background:var(--primary);color:#fff}
-  .ghost{background:#fff;color:var(--text);border:1px solid var(--line)}
-  .success{background:var(--success-soft);color:var(--success);border:1px solid #b7e5c0}
-  .warn{background:var(--warn-soft);color:var(--warn);border:1px solid #fed7aa}
-  .danger{background:var(--danger-soft);color:var(--danger);border:1px solid #f8b4c0}
-  .criteria-title{font-size:1rem;font-weight:800;margin:14px 0 8px}
-  .criteria-note{font-size:.88rem;color:var(--muted);margin-bottom:12px}
-  .criterion{border:1px solid #e7ebf0;border-radius:14px;padding:12px;margin-bottom:10px;background:#fcfdff}
-  .criterion-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
-  .criterion-name{font-weight:800}
-  .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f4f6;font-size:.84rem;font-weight:800}
-  .stars{display:flex;gap:8px;flex-wrap:wrap}
-  .star-btn{width:52px;height:46px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:22px;line-height:1;cursor:pointer}
-  .star-btn.active{border-color:var(--star);background:#fff8eb;color:var(--star)}
-  .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-  @media (max-width:760px){.metrics{grid-template-columns:1fr}}
-  .metric{border:1px solid #e7ebf0;border-radius:14px;padding:12px;background:#f8fafc}
-  .metric .value{font-size:1.5rem;font-weight:900;margin-top:6px}
-  .list{display:grid;gap:10px}
-  .item{border:1px solid #e5e7eb;border-radius:14px;padding:12px;background:#fff}
-  .item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-  .leader{border:1px solid #e5e7eb;border-radius:14px;padding:12px;background:#fff}
-  .gold{background:#fffaf0;border-color:#fcd34d}.silver{background:#f8fafc;border-color:#cbd5e1}.bronze{background:#fff7ed;border-color:#fdba74}
-  .medal{font-size:20px;margin-right:6px}
-  .empty{border:2px dashed #d1d5db;border-radius:14px;padding:16px;text-align:center;color:var(--muted)}
-  .quick-chip{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef4ff;color:#175cd3;font-size:12px;font-weight:800;margin-right:6px;margin-bottom:6px}
-  .footer-note{text-align:center;color:var(--muted);font-size:.84rem;padding-bottom:18px}
+:root{
+  --bg:#f4f7fb; --card:#ffffff; --text:#172033; --muted:#667085; --line:#d8dee8;
+  --primary:#1d4ed8; --primary-soft:#eaf1ff; --success:#15803d; --success-soft:#edfdf3;
+  --warn:#b45309; --warn-soft:#fff7ed; --danger:#b42318; --danger-soft:#fff1f3;
+  --shadow:0 10px 28px rgba(16,24,40,.07); --star:#f59e0b;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(180deg,#eaf1ff 0,#f4f7fb 220px);color:var(--text)}
+.wrap{max-width:1180px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid #e7ebf0;border-radius:18px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+h1,h2,h3{margin:0 0 10px}
+p{margin:0}
+.muted{color:var(--muted)}
+.tiny{font-size:.86rem;color:var(--muted)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.badge{display:inline-block;padding:7px 12px;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-weight:800;font-size:.9rem}
+.grid-2{display:grid;grid-template-columns:1.12fr .88fr;gap:16px}
+@media (max-width:980px){.grid-2{grid-template-columns:1fr}}
+.row{display:grid;grid-template-columns:1fr 1fr 140px;gap:10px;margin-bottom:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+@media (max-width:760px){.row,.row2{grid-template-columns:1fr}}
+label{display:block;font-weight:700;font-size:.92rem;margin:0 0 6px}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:15px}
+textarea{min-height:90px;resize:vertical}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+button{border:none;border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer}
+.primary{background:var(--primary);color:#fff}
+.ghost{background:#fff;color:var(--text);border:1px solid var(--line)}
+.success{background:var(--success-soft);color:var(--success);border:1px solid #b7e5c0}
+.warn{background:var(--warn-soft);color:var(--warn);border:1px solid #fed7aa}
+.danger{background:var(--danger-soft);color:var(--danger);border:1px solid #f8b4c0}
+.criteria-title{font-size:1rem;font-weight:800;margin:14px 0 8px}
+.criteria-note{font-size:.88rem;color:var(--muted);margin-bottom:12px}
+.criterion{border:1px solid #e7ebf0;border-radius:14px;padding:12px;margin-bottom:10px;background:#fcfdff}
+.criterion-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.criterion-name{font-weight:800}
+.pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f4f6;font-size:.84rem;font-weight:800}
+.stars{display:flex;gap:8px;flex-wrap:wrap}
+.star-btn{width:52px;height:46px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:22px;line-height:1;cursor:pointer}
+.star-btn.active{border-color:var(--star);background:#fff8eb;color:var(--star)}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:760px){.metrics{grid-template-columns:1fr}}
+.metric{border:1px solid #e7ebf0;border-radius:14px;padding:12px;background:#f8fafc}
+.metric .value{font-size:1.5rem;font-weight:900;margin-top:6px}
+.list{display:grid;gap:10px}
+.item{border:1px solid #e5e7eb;border-radius:14px;padding:12px;background:#fff}
+.item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.leader{border:1px solid #e5e7eb;border-radius:14px;padding:12px;background:#fff}
+.gold{background:#fffaf0;border-color:#fcd34d}
+.silver{background:#f8fafc;border-color:#cbd5e1}
+.bronze{background:#fff7ed;border-color:#fdba74}
+.medal{font-size:20px;margin-right:6px}
+.empty{border:2px dashed #d1d5db;border-radius:14px;padding:16px;text-align:center;color:var(--muted)}
+.quick-chip{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef4ff;color:#175cd3;font-size:12px;font-weight:800;margin-right:6px;margin-bottom:6px}
+.footer-note{text-align:center;color:var(--muted);font-size:.84rem;padding-bottom:18px}
+.notice{background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:10px 12px;border-radius:12px;margin-top:10px}
+.print-report{display:none}
+.report-page{page-break-after:always;break-after:page;padding:8mm 0}
+.report-page:last-child{page-break-after:auto;break-after:auto}
+.report-title{font-size:22px;font-weight:900;margin:0 0 12px}
+.report-subtitle{font-size:16px;color:#475467;margin-bottom:14px}
+.report-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+.report-table td,.report-table th{border:1px solid #bbb;padding:8px;text-align:left;vertical-align:top}
+.report-label{width:220px;font-weight:700;background:#f7f7f7}
+.report-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 16px}
+.summary-box{border:1px solid #d1d5db;border-radius:12px;padding:12px;background:#fafafa}
+.summary-box .title{font-size:12px;color:#475467}
+.summary-box .value{font-size:24px;font-weight:900;margin-top:4px}
+.signature{margin-top:120px;border-top:1px solid #111;width:280px;padding-top:8px;font-size:14px}
+.cover{padding-top:12mm;text-align:center}
+.cover h1{font-size:34px;margin:8px 0}
+.cover h2{font-size:18px;color:#475467;margin:6px 0 0}
+.cover-box{max-width:760px;margin:18px auto 0;border:2px solid #d1d5db;border-radius:18px;padding:22px;background:#fafafa}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff}
+  .wrap>.card,.footer-note{display:none!important}
+  .print-report{display:block}
+}
 </style>
 </head>
 <body>
@@ -65,14 +93,15 @@
   <div class="card">
     <div class="topbar">
       <div>
-        <h1>Expo Judge Pro v8</h1>
-        <div class="muted">Official academic evaluation report with all app sections and corrected PDF generation.</div>
+        <h1>Expo Judge Pro v8.1</h1>
+        <div class="muted">Enhanced from v8 with strong local retention, draft recovery, ranking, awards, CSV, and structured PDF report.</div>
       </div>
       <div>
         <div class="badge" id="stallCounter">New Stall</div>
         <div class="tiny" id="saveStatus">Not saved yet</div>
       </div>
     </div>
+    <div id="draftNotice" class="notice" style="display:none;"></div>
   </div>
 
   <div class="grid-2">
@@ -87,7 +116,7 @@
 
         <div class="row2" style="margin-top:12px">
           <div><label for="judgeName">Judge Name</label><input id="judgeName" placeholder="e.g. Krishna K"></div>
-          <div><label for="panelName">Panel / Committee</label><input id="panelName" placeholder="e.g. BrianoVision"></div>
+          <div><label for="panelName">Panel / Committee</label><input id="panelName" placeholder="e.g. Final Jury"></div>
         </div>
 
         <div class="row">
@@ -152,321 +181,567 @@
     <div id="savedList" class="list"></div>
   </div>
 
-  <div class="footer-note">GitHub Pages ready. Rename this file to index.html before uploading.</div>
+  <div class="footer-note">Data is retained in this browser until you press Clear All Saved. GitHub Pages ready.</div>
+  <div id="printReport" class="print-report"></div>
 </div>
 
 <script>
-const STORAGE_KEY="expo_judge_pro_v8";
-const CRITERIA=[["innovation","Innovation"],["practical","Practical Use"],["technical","Technical Quality"],["presentation","Presentation"],["future","Future Scope"]];
-let currentIndex=-1;
+const STORAGE_KEY = "expo_judge_pro_v8_1";
+const DRAFT_KEY = "expo_judge_pro_v8_1_draft";
+const CRITERIA = [["innovation","Innovation"],["practical","Practical Use"],["technical","Technical Quality"],["presentation","Presentation"],["future","Future Scope"]];
+let currentIndex = -1;
+let suppressDraftSave = false;
 
-function init(){buildCriteria();attachEvents();resetForm();renderAll();updateSummary();updateHeader();}
+function init(){
+  buildCriteria();
+  attachEvents();
+  resetForm();
+  restoreDraftIfAny();
+  renderAll();
+  updateSummary();
+  updateHeader();
+}
 function buildCriteria(){
-  const box=document.getElementById("criteria"); box.innerHTML="";
+  const box = document.getElementById("criteria");
+  box.innerHTML = "";
   CRITERIA.forEach(([key,label])=>{
-    const div=document.createElement("div");
-    div.className="criterion";
-    div.innerHTML='<div class="criterion-head"><div class="criterion-name">'+label+'</div><div class="pill"><span id="'+key+'Val">4</span>/5</div></div><div class="stars" id="'+key+'Stars"></div><div class="tiny">Tap 1 to 5 stars</div>';
+    const div = document.createElement("div");
+    div.className = "criterion";
+    div.innerHTML = '<div class="criterion-head"><div class="criterion-name">'+label+'</div><div class="pill"><span id="'+key+'Val">4</span>/5</div></div><div class="stars" id="'+key+'Stars"></div><div class="tiny">Tap 1 to 5 stars</div>';
     box.appendChild(div);
-    const row=div.querySelector(".stars");
+    const row = div.querySelector(".stars");
     for(let i=1;i<=5;i++){
-      const b=document.createElement("button");
-      b.type="button"; b.className="star-btn"+(i<=4?" active":""); b.textContent="★"; b.dataset.value=String(i);
-      b.addEventListener("click",()=>setScore(key,i));
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "star-btn" + (i<=4 ? " active" : "");
+      b.textContent = "★";
+      b.dataset.value = String(i);
+      b.addEventListener("click", ()=> setScore(key, i));
       row.appendChild(b);
     }
   });
 }
 function attachEvents(){
-  saveBtn.addEventListener("click",()=>save(false));
-  saveNextBtn.addEventListener("click",()=>save(true));
-  remarkBtn.addEventListener("click",generateRemark);
-  innovationBtn.addEventListener("click",markInnovationCandidate);
-  prevBtn.addEventListener("click",prev);
-  nextBtn.addEventListener("click",next);
-  newBtn.addEventListener("click",newStall);
-  deleteBtn.addEventListener("click",deleteEntry);
-  csvBtn.addEventListener("click",exportCSV);
-  pdfBtn.addEventListener("click",printFinalPDF);
-  clearBtn.addEventListener("click",clearAll);
+  document.getElementById("saveBtn").addEventListener("click", ()=>save(false));
+  document.getElementById("saveNextBtn").addEventListener("click", ()=>save(true));
+  document.getElementById("remarkBtn").addEventListener("click", generateRemark);
+  document.getElementById("innovationBtn").addEventListener("click", markInnovationCandidate);
+  document.getElementById("prevBtn").addEventListener("click", prev);
+  document.getElementById("nextBtn").addEventListener("click", next);
+  document.getElementById("newBtn").addEventListener("click", newStall);
+  document.getElementById("deleteBtn").addEventListener("click", deleteEntry);
+  document.getElementById("csvBtn").addEventListener("click", exportCSV);
+  document.getElementById("pdfBtn").addEventListener("click", printFinalPDF);
+  document.getElementById("clearBtn").addEventListener("click", clearAll);
+
+  ["judgeName","panelName","stallName","department","stallNo","team","verdict","strengths","improvements","notes","remark"].forEach(id=>{
+    const el = document.getElementById(id);
+    el.addEventListener("input", saveDraft);
+    el.addEventListener("change", saveDraft);
+  });
+  window.addEventListener("beforeunload", saveDraft);
 }
-function loadEntries(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");}catch{return [];}}
-function saveEntries(arr){localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));}
-function setScore(name,val){
-  document.getElementById(name+"Val").textContent=String(val);
-  const row=document.getElementById(name+"Stars");
-  row.querySelectorAll(".star-btn").forEach(b=>b.classList.toggle("active",Number(b.dataset.value)<=Number(val)));
-  updateSummary(); setStatus("Changes not saved");
+function loadEntries(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+  catch { return []; }
+}
+function saveEntries(arr){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+}
+function loadDraft(){
+  try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); }
+  catch { return null; }
+}
+function clearDraft(){
+  localStorage.removeItem(DRAFT_KEY);
+  document.getElementById("draftNotice").style.display = "none";
+}
+function saveDraft(){
+  if(suppressDraftSave) return;
+  const draft = collectDraftData();
+  if(isDraftEmpty(draft)){
+    localStorage.removeItem(DRAFT_KEY);
+    document.getElementById("draftNotice").style.display = "none";
+    return;
+  }
+  localStorage.setItem(DRAFT_KEY, JSON.stringify({...draft, savedAt:new Date().toLocaleString()}));
+}
+function collectDraftData(){
+  const d = {
+    judgeName: document.getElementById("judgeName").value.trim(),
+    panelName: document.getElementById("panelName").value.trim(),
+    stallName: document.getElementById("stallName").value.trim(),
+    department: document.getElementById("department").value.trim(),
+    stallNo: document.getElementById("stallNo").value.trim(),
+    team: document.getElementById("team").value.trim(),
+    verdict: document.getElementById("verdict").value,
+    strengths: document.getElementById("strengths").value.trim(),
+    improvements: document.getElementById("improvements").value.trim(),
+    notes: document.getElementById("notes").value.trim(),
+    remark: document.getElementById("remark").value.trim()
+  };
+  CRITERIA.forEach(([key]) => d[key] = Number(document.getElementById(key + "Val").textContent));
+  return d;
+}
+function isDraftEmpty(d){
+  return !d.judgeName && !d.panelName && !d.stallName && !d.department && !d.stallNo &&
+         !d.team && !d.strengths && !d.improvements && !d.notes && !d.remark;
+}
+function restoreDraftIfAny(){
+  const draft = loadDraft();
+  if(!draft) return;
+  suppressDraftSave = true;
+  fillForm(draft);
+  suppressDraftSave = false;
+  updateSummary();
+  const note = document.getElementById("draftNotice");
+  note.textContent = "Recovered unsaved draft from " + (draft.savedAt || "earlier session") + ".";
+  note.style.display = "block";
+  setStatus("Draft restored");
+}
+function setScore(name, val){
+  document.getElementById(name + "Val").textContent = String(val);
+  const row = document.getElementById(name + "Stars");
+  row.querySelectorAll(".star-btn").forEach(b => {
+    b.classList.toggle("active", Number(b.dataset.value) <= Number(val));
+  });
+  updateSummary();
+  setStatus("Changes not saved");
+  saveDraft();
 }
 function updateSummary(){
-  let totalVal=0;
-  CRITERIA.forEach(([key])=> totalVal += Number(document.getElementById(key+"Val").textContent));
-  document.getElementById("totalDisplay").textContent=String(totalVal);
-  document.getElementById("averageDisplay").textContent=(totalVal/CRITERIA.length).toFixed(1);
+  let totalVal = 0;
+  CRITERIA.forEach(([key]) => totalVal += Number(document.getElementById(key + "Val").textContent));
+  document.getElementById("totalDisplay").textContent = String(totalVal);
+  document.getElementById("averageDisplay").textContent = (totalVal / CRITERIA.length).toFixed(1);
 }
 function getData(){
-  const d={
-    judgeName:judgeName.value.trim(),
-    panelName:panelName.value.trim(),
-    stallName:stallName.value.trim(),
-    department:department.value.trim(),
-    stallNo:stallNo.value.trim(),
-    team:team.value.trim(),
-    verdict:verdict.value,
-    strengths:strengths.value.trim(),
-    improvements:improvements.value.trim(),
-    notes:notes.value.trim(),
-    remark:remark.value.trim(),
-    total:Number(document.getElementById("totalDisplay").textContent),
-    average:Number(document.getElementById("averageDisplay").textContent),
-    updatedAt:new Date().toLocaleString(),
-    innovationAwardCandidate:false
+  const d = {
+    judgeName: judgeName.value.trim(),
+    panelName: panelName.value.trim(),
+    stallName: stallName.value.trim(),
+    department: department.value.trim(),
+    stallNo: stallNo.value.trim(),
+    team: team.value.trim(),
+    verdict: verdict.value,
+    strengths: strengths.value.trim(),
+    improvements: improvements.value.trim(),
+    notes: notes.value.trim(),
+    remark: remark.value.trim(),
+    total: Number(document.getElementById("totalDisplay").textContent),
+    average: Number(document.getElementById("averageDisplay").textContent),
+    updatedAt: new Date().toLocaleString(),
+    innovationAwardCandidate: false
   };
-  CRITERIA.forEach(([key])=>d[key]=Number(document.getElementById(key+"Val").textContent));
+  CRITERIA.forEach(([key]) => d[key] = Number(document.getElementById(key + "Val").textContent));
   return d;
 }
 function fillForm(d){
-  judgeName.value=d.judgeName||""; panelName.value=d.panelName||""; stallName.value=d.stallName||""; department.value=d.department||""; stallNo.value=d.stallNo||""; team.value=d.team||""; verdict.value=d.verdict||"Excellent"; strengths.value=d.strengths||""; improvements.value=d.improvements||""; notes.value=d.notes||""; remark.value=d.remark||""; CRITERIA.forEach(([key])=>setScore(key,d[key]||4));
+  judgeName.value = d.judgeName || "";
+  panelName.value = d.panelName || "";
+  stallName.value = d.stallName || "";
+  department.value = d.department || "";
+  stallNo.value = d.stallNo || "";
+  team.value = d.team || "";
+  verdict.value = d.verdict || "Excellent";
+  strengths.value = d.strengths || "";
+  improvements.value = d.improvements || "";
+  notes.value = d.notes || "";
+  remark.value = d.remark || "";
+  CRITERIA.forEach(([key]) => setScore(key, d[key] || 4));
+  updateSummary();
 }
 function resetForm(){
-  judgeName.value=""; panelName.value=""; stallName.value=""; department.value=""; stallNo.value=""; team.value=""; verdict.value="Excellent"; strengths.value=""; improvements.value=""; notes.value=""; remark.value=""; CRITERIA.forEach(([key])=>setScore(key,4));
+  suppressDraftSave = true;
+  judgeName.value = "";
+  panelName.value = "";
+  stallName.value = "";
+  department.value = "";
+  stallNo.value = "";
+  team.value = "";
+  verdict.value = "Excellent";
+  strengths.value = "";
+  improvements.value = "";
+  notes.value = "";
+  remark.value = "";
+  CRITERIA.forEach(([key]) => setScore(key, 4));
+  updateSummary();
+  suppressDraftSave = false;
 }
 function save(goNext){
-  const d=getData();
-  if(!d.stallName){alert("Enter stall name");return;}
-  if(!d.judgeName){alert("Enter judge name");return;}
-  if(!d.remark){d.remark=buildRemark(d.average); remark.value=d.remark;}
-  const arr=loadEntries();
-  if(currentIndex===-1){d.createdAt=new Date().toLocaleString(); arr.push(d); currentIndex=arr.length-1;}
-  else{d.createdAt=arr[currentIndex].createdAt||new Date().toLocaleString(); d.innovationAwardCandidate=!!arr[currentIndex].innovationAwardCandidate; arr[currentIndex]=d;}
-  saveEntries(arr); renderAll(); updateHeader(); setStatus("Saved");
+  const d = getData();
+  if(!d.stallName){
+    d.stallName = d.stallNo ? "Stall " + d.stallNo : "Unnamed Stall";
+    stallName.value = d.stallName;
+  }
+  if(!d.judgeName){
+    alert("Enter judge name");
+    return;
+  }
+  if(!d.remark){
+    d.remark = buildRemark(d.average);
+    remark.value = d.remark;
+  }
+
+  const arr = loadEntries();
+  if(currentIndex === -1){
+    d.createdAt = new Date().toLocaleString();
+    arr.push(d);
+    currentIndex = arr.length - 1;
+  } else {
+    d.createdAt = arr[currentIndex].createdAt || new Date().toLocaleString();
+    d.innovationAwardCandidate = !!arr[currentIndex].innovationAwardCandidate;
+    arr[currentIndex] = d;
+  }
+
+  saveEntries(arr);
+  clearDraft();
+  renderAll();
+  updateHeader();
+  setStatus("Saved");
+
   if(goNext){
-    const keepJudge=judgeName.value, keepPanel=panelName.value;
-    currentIndex=-1; resetForm(); judgeName.value=keepJudge; panelName.value=keepPanel; updateHeader(); setStatus("Saved. Ready for next stall");
+    const keepJudge = judgeName.value, keepPanel = panelName.value;
+    currentIndex = -1;
+    resetForm();
+    judgeName.value = keepJudge;
+    panelName.value = keepPanel;
+    saveDraft();
+    updateHeader();
+    setStatus("Saved. Ready for next stall");
   }
 }
 function markInnovationCandidate(){
-  const arr=loadEntries(); if(currentIndex===-1){alert("Save the stall first, then mark innovation candidate.");return;}
-  arr[currentIndex].innovationAwardCandidate=true; arr[currentIndex].updatedAt=new Date().toLocaleString(); saveEntries(arr); renderAll(); setStatus("Marked for innovation award");
+  const arr = loadEntries();
+  if(currentIndex === -1){
+    alert("Save the stall first, then mark innovation candidate.");
+    return;
+  }
+  arr[currentIndex].innovationAwardCandidate = true;
+  arr[currentIndex].updatedAt = new Date().toLocaleString();
+  saveEntries(arr);
+  renderAll();
+  setStatus("Marked for innovation award");
 }
 function newStall(){
-  const keepJudge=judgeName.value, keepPanel=panelName.value;
-  currentIndex=-1; resetForm(); judgeName.value=keepJudge; panelName.value=keepPanel; updateHeader(); setStatus("New blank stall");
+  const keepJudge = judgeName.value, keepPanel = panelName.value;
+  currentIndex = -1;
+  resetForm();
+  judgeName.value = keepJudge;
+  panelName.value = keepPanel;
+  clearDraft();
+  saveDraft();
+  updateHeader();
+  setStatus("New blank stall");
 }
 function prev(){
-  const arr=loadEntries(); if(!arr.length){alert("No saved stalls yet");return;}
-  if(currentIndex===-1) currentIndex=arr.length-1; else currentIndex=Math.max(0,currentIndex-1);
-  fillForm(arr[currentIndex]); updateHeader(); setStatus("Viewing saved stall");
+  const arr = loadEntries();
+  if(arr.length === 0){
+    alert("No saved stalls yet");
+    return;
+  }
+  if(currentIndex === -1) currentIndex = arr.length - 1;
+  else currentIndex = Math.max(0, currentIndex - 1);
+  suppressDraftSave = true;
+  fillForm(arr[currentIndex]);
+  suppressDraftSave = false;
+  clearDraft();
+  updateHeader();
+  setStatus("Viewing saved stall");
 }
 function next(){
-  const arr=loadEntries(); if(!arr.length){alert("No saved stalls yet");return;}
-  if(currentIndex===-1) currentIndex=0; else currentIndex=Math.min(arr.length-1,currentIndex+1);
-  fillForm(arr[currentIndex]); updateHeader(); setStatus("Viewing saved stall");
+  const arr = loadEntries();
+  if(arr.length === 0){
+    alert("No saved stalls yet");
+    return;
+  }
+  if(currentIndex === -1) currentIndex = 0;
+  else currentIndex = Math.min(arr.length - 1, currentIndex + 1);
+  suppressDraftSave = true;
+  fillForm(arr[currentIndex]);
+  suppressDraftSave = false;
+  clearDraft();
+  updateHeader();
+  setStatus("Viewing saved stall");
 }
 function deleteEntry(){
-  const arr=loadEntries(); if(currentIndex===-1){alert("Open a saved stall first");return;}
+  const arr = loadEntries();
+  if(currentIndex === -1){
+    alert("Open a saved stall first");
+    return;
+  }
   if(!confirm("Delete this saved stall?")) return;
-  const keepJudge=judgeName.value, keepPanel=panelName.value;
-  arr.splice(currentIndex,1); saveEntries(arr);
-  if(!arr.length){currentIndex=-1; resetForm(); judgeName.value=keepJudge; panelName.value=keepPanel;}
-  else{currentIndex=Math.min(currentIndex,arr.length-1); fillForm(arr[currentIndex]);}
-  renderAll(); updateHeader(); setStatus("Deleted");
+  const keepJudge = judgeName.value, keepPanel = panelName.value;
+
+  arr.splice(currentIndex, 1);
+  saveEntries(arr);
+
+  if(arr.length === 0){
+    currentIndex = -1;
+    resetForm();
+    judgeName.value = keepJudge;
+    panelName.value = keepPanel;
+    saveDraft();
+  } else {
+    currentIndex = Math.min(currentIndex, arr.length - 1);
+    suppressDraftSave = true;
+    fillForm(arr[currentIndex]);
+    suppressDraftSave = false;
+  }
+
+  renderAll();
+  updateHeader();
+  setStatus("Deleted");
 }
 function openEntry(i){
-  const arr=loadEntries(); currentIndex=i; fillForm(arr[i]); updateHeader(); setStatus("Viewing saved stall"); window.scrollTo({top:0,behavior:"smooth"});
+  const arr = loadEntries();
+  currentIndex = i;
+  suppressDraftSave = true;
+  fillForm(arr[i]);
+  suppressDraftSave = false;
+  clearDraft();
+  updateHeader();
+  setStatus("Viewing saved stall");
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 function sortRanked(entries){
-  return [...entries].sort((a,b)=>{if(Number(b.total)!==Number(a.total))return Number(b.total)-Number(a.total); if(Number(b.innovation)!==Number(a.innovation))return Number(b.innovation)-Number(a.innovation); return (a.stallName||"").localeCompare(b.stallName||"");});
+  return [...entries].sort((a,b) => {
+    if(Number(b.total) !== Number(a.total)) return Number(b.total) - Number(a.total);
+    if(Number(b.innovation) !== Number(a.innovation)) return Number(b.innovation) - Number(a.innovation);
+    return (a.stallName || "").localeCompare(b.stallName || "");
+  });
 }
 function renderAll(){
-  const entries=loadEntries();
-  renderLeaderboard(entries); renderInnovationAward(entries); renderRanking(entries); renderSavedEntries(entries);
+  const entries = loadEntries();
+  renderLeaderboard(entries);
+  renderInnovationAward(entries);
+  renderRanking(entries);
+  renderSavedEntries(entries);
 }
 function renderLeaderboard(entries){
-  const ranked=sortRanked(entries).slice(0,3);
-  if(!ranked.length){leaderboard.innerHTML='<div class="empty">No saved stalls yet</div>';return;}
-  const medals=[["🥇","gold"],["🥈","silver"],["🥉","bronze"]];
-  leaderboard.innerHTML=ranked.map((s,i)=>'<div class="leader '+medals[i][1]+'"><div><span class="medal">'+medals[i][0]+'</span><strong>'+escapeHtml(s.stallName)+'</strong></div><div class="tiny">'+escapeHtml(s.department)+' '+(s.stallNo ? "• "+escapeHtml(s.stallNo) : "")+'</div><div class="tiny" style="margin-top:6px;">Score: <strong>'+s.total+'/25</strong> • Avg: <strong>'+s.average+'/5</strong></div></div>').join("");
+  const ranked = sortRanked(entries).slice(0,3);
+  const box = document.getElementById("leaderboard");
+  if(!ranked.length){
+    box.innerHTML = '<div class="empty">No saved stalls yet</div>';
+    return;
+  }
+  const medals = [["🥇","gold"],["🥈","silver"],["🥉","bronze"]];
+  box.innerHTML = ranked.map((s,i) => `
+    <div class="leader ${medals[i][1]}">
+      <div><span class="medal">${medals[i][0]}</span><strong>${escapeHtml(s.stallName)}</strong></div>
+      <div class="tiny">${escapeHtml(s.department || "")} ${s.stallNo ? "• " + escapeHtml(s.stallNo) : ""}</div>
+      <div class="tiny" style="margin-top:6px;">Score: <strong>${s.total}/25</strong> • Avg: <strong>${s.average}/5</strong></div>
+    </div>
+  `).join("");
 }
 function renderInnovationAward(entries){
-  if(!entries.length){innovationAward.innerHTML='<div class="empty">No saved stalls yet</div>';return;}
-  let candidates=entries.filter(x=>x.innovationAwardCandidate); if(!candidates.length) candidates=entries;
-  candidates.sort((a,b)=>Number(b.innovation)-Number(a.innovation)||Number(b.total)-Number(a.total));
-  const s=candidates[0];
-  innovationAward.innerHTML='<div><strong>'+escapeHtml(s.stallName||"")+'</strong></div><div class="tiny">'+escapeHtml(s.department||"")+' '+(s.stallNo ? "• "+escapeHtml(s.stallNo):"")+'</div><div class="tiny" style="margin-top:6px;">Innovation Score: <strong>'+s.innovation+'/5</strong></div><div class="tiny">Overall Score: <strong>'+s.total+'/25</strong></div>';
+  const box = document.getElementById("innovationAward");
+  if(!entries.length){
+    box.innerHTML = '<div class="empty">No saved stalls yet</div>';
+    return;
+  }
+  let candidates = entries.filter(x => x.innovationAwardCandidate);
+  if(!candidates.length) candidates = entries;
+  candidates.sort((a,b) => Number(b.innovation) - Number(a.innovation) || Number(b.total) - Number(a.total));
+  const s = candidates[0];
+  box.innerHTML = `
+    <div><strong>${escapeHtml(s.stallName || "")}</strong></div>
+    <div class="tiny">${escapeHtml(s.department || "")} ${s.stallNo ? "• " + escapeHtml(s.stallNo) : ""}</div>
+    <div class="tiny" style="margin-top:6px;">Innovation Score: <strong>${s.innovation}/5</strong></div>
+    <div class="tiny">Overall Score: <strong>${s.total}/25</strong></div>
+  `;
 }
 function renderRanking(entries){
-  const ranked=sortRanked(entries); if(!ranked.length){rankingList.innerHTML='<div class="empty">No ranking yet</div>';return;}
-  rankingList.innerHTML=ranked.map((s,i)=>'<div class="item"><div class="item-top"><div><strong>'+(i+1)+'. '+escapeHtml(s.stallName)+'</strong><div class="tiny">'+escapeHtml(s.department)+' '+(s.stallNo ? "• "+escapeHtml(s.stallNo):"")+'</div></div><div class="quick-chip">'+s.total+'/25</div></div><div class="tiny">Innovation '+s.innovation+'/5 • Verdict '+escapeHtml(s.verdict||"-")+'</div></div>').join("");
+  const ranked = sortRanked(entries);
+  const box = document.getElementById("rankingList");
+  if(!ranked.length){
+    box.innerHTML = '<div class="empty">No ranking yet</div>';
+    return;
+  }
+  box.innerHTML = ranked.map((s,i) => `
+    <div class="item">
+      <div class="item-top">
+        <div>
+          <strong>${i+1}. ${escapeHtml(s.stallName)}</strong>
+          <div class="tiny">${escapeHtml(s.department || "")} ${s.stallNo ? "• " + escapeHtml(s.stallNo) : ""}</div>
+        </div>
+        <div class="quick-chip">${s.total}/25</div>
+      </div>
+      <div class="tiny">Innovation ${s.innovation}/5 • Verdict ${escapeHtml(s.verdict || "-")}</div>
+    </div>
+  `).join("");
 }
 function renderSavedEntries(entries){
-  if(!entries.length){savedList.innerHTML='<div class="empty">No saved stalls yet</div>';return;}
-  savedList.innerHTML=entries.map((e,i)=>'<div class="item"><div class="item-top"><div><b>'+escapeHtml(e.stallName||"")+'</b><div class="tiny">'+escapeHtml(e.department||"")+' '+(e.stallNo ? "• "+escapeHtml(e.stallNo) : "")+'</div><div class="tiny">Judge: '+escapeHtml(e.judgeName||"-")+' '+(e.panelName ? "• "+escapeHtml(e.panelName) : "")+'</div><div class="tiny">'+escapeHtml(e.verdict||"")+' • '+e.total+'/25'+(e.innovationAwardCandidate ? " • Innovation Candidate" : "")+'</div></div><button class="ghost open-btn" data-index="'+i+'" type="button">Open</button></div></div>').join("");
-  document.querySelectorAll(".open-btn").forEach(btn=>btn.addEventListener("click",()=>openEntry(Number(btn.dataset.index))));
+  const box = document.getElementById("savedList");
+  if(!entries.length){
+    box.innerHTML = '<div class="empty">No saved stalls yet</div>';
+    return;
+  }
+  box.innerHTML = entries.map((e,i) => `
+    <div class="item">
+      <div class="item-top">
+        <div>
+          <b>${escapeHtml(e.stallName || "")}</b>
+          <div class="tiny">${escapeHtml(e.department || "")} ${e.stallNo ? "• " + escapeHtml(e.stallNo) : ""}</div>
+          <div class="tiny">Judge: ${escapeHtml(e.judgeName || "-")} ${e.panelName ? "• " + escapeHtml(e.panelName) : ""}</div>
+          <div class="tiny">${escapeHtml(e.verdict || "")} • ${e.total || 0}/25${e.innovationAwardCandidate ? " • Innovation Candidate" : ""}</div>
+        </div>
+        <button class="ghost open-btn" data-index="${i}" type="button">Open</button>
+      </div>
+    </div>
+  `).join("");
+  box.querySelectorAll(".open-btn").forEach(btn => {
+    btn.addEventListener("click", () => openEntry(Number(btn.dataset.index)));
+  });
 }
 function buildRemark(avg){
-  if(avg>4.5) return "Excellent project with strong implementation, innovation, and practical relevance.";
-  if(avg>4.0) return "Very good project with a clear concept and useful application.";
-  if(avg>3.0) return "Promising project with good potential and scope for improvement.";
-  return "Sincere effort. Further refinement is recommended.";
+  if(avg > 4.5) return "Excellent project with strong implementation and practical relevance.";
+  if(avg > 4.0) return "Very good project with clear concept and useful application.";
+  if(avg > 3.0) return "Promising project with good potential.";
+  return "Sincere effort. Further improvement recommended.";
 }
-function generateRemark(){remark.value=buildRemark(Number(document.getElementById("averageDisplay").textContent)); setStatus("Remark generated");}
-function updateHeader(){const arr=loadEntries(); stallCounter.textContent=currentIndex===-1 ? "New Stall" : "Stall "+(currentIndex+1)+" of "+arr.length;}
-function setStatus(msg){saveStatus.textContent=msg;}
-function clearAll(){if(!confirm("Clear all saved stalls?"))return; localStorage.removeItem(STORAGE_KEY); currentIndex=-1; resetForm(); renderAll(); updateHeader(); setStatus("All saved data cleared");}
-function csvEscape(v){const t=String(v??""); return '"' + t.replace(/"/g,'""') + '"';}
+function generateRemark(){
+  const avg = Number(document.getElementById("averageDisplay").textContent);
+  document.getElementById("remark").value = buildRemark(avg);
+  saveDraft();
+  setStatus("Remark generated");
+}
+function updateHeader(){
+  const arr = loadEntries();
+  document.getElementById("stallCounter").textContent = currentIndex === -1 ? "New Stall" : `Stall ${currentIndex + 1} of ${arr.length}`;
+}
+function setStatus(msg){
+  document.getElementById("saveStatus").textContent = msg;
+}
+function clearAll(){
+  if(!confirm("Clear all saved stall feedback?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(DRAFT_KEY);
+  currentIndex = -1;
+  resetForm();
+  renderAll();
+  updateHeader();
+  document.getElementById("draftNotice").style.display = "none";
+  setStatus("All saved feedback cleared");
+}
 function exportCSV(){
-  const entries=sortRanked(loadEntries()); if(!entries.length){alert("No saved stalls to export");return;}
-  const headers=["Rank","Judge Name","Panel","Stall Name","Department","Stall No","Team","Verdict","Innovation","Practical","Technical","Presentation","Future","Total","Average","Innovation Candidate","Strengths","Improvements","Notes","Remark","Created At","Updated At"];
-  const rows=entries.map((e,idx)=>[idx+1,e.judgeName,e.panelName,e.stallName,e.department,e.stallNo,e.team,e.verdict,e.innovation,e.practical,e.technical,e.presentation,e.future,e.total,e.average,e.innovationAwardCandidate?"Yes":"No",e.strengths,e.improvements,e.notes,e.remark,e.createdAt||"",e.updatedAt||""]);
-  const csv=[headers,...rows].map(r=>r.map(csvEscape).join(",")).join("\n");
-  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="expo-judge-pro-v8.csv"; a.click(); URL.revokeObjectURL(url); setStatus("CSV exported");
-}
-function barRow(label,value){
-  const width=Math.max(0,Math.min(100,(Number(value)||0)*20));
-  return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:5px"><span>'+label+'</span><span>'+value+'/5</span></div><div style="height:10px;background:#eef2f7;border-radius:999px;overflow:hidden;border:1px solid #dbe2ea"><div style="height:100%;background:#1d4ed8;width:'+width+'%"></div></div></div>';
+  const arr = sortRanked(loadEntries());
+  if(arr.length === 0){
+    alert("No saved stalls to export");
+    return;
+  }
+  const headers = ["Rank","Stall Name","Department","Stall No","Team","Verdict","Innovation","Practical Use","Technical Quality","Presentation","Future Scope","Total","Average","Strengths","Improvements","Notes","Remark","Created At","Updated At"];
+  const rows = arr.map((s,idx) => [
+    idx+1,s.stallName,s.department,s.stallNo,s.team,s.verdict,
+    s.innovation,s.practical,s.technical,s.presentation,s.future,
+    s.total,s.average,s.strengths,s.improvements,s.notes,s.remark,s.createdAt,s.updatedAt
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => '"' + String(v ?? "").replace(/"/g,'""') + '"').join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "expo-stall-feedback-v8-1.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+  setStatus("CSV exported");
 }
 function printFinalPDF(){
-  const entries=sortRanked(loadEntries()); if(!entries.length){alert("No saved stalls to print");return;}
-  const top3=entries.slice(0,3);
-  let candidates=entries.filter(x=>x.innovationAwardCandidate); if(!candidates.length) candidates=entries;
-  candidates.sort((a,b)=>Number(b.innovation)-Number(a.innovation)||Number(b.total)-Number(a.total));
-  const innovationWinner=candidates[0];
-
-  const style = `
-    <style>
-      body{font-family:Arial,sans-serif;color:#172033;margin:0}
-      .page{page-break-after:always; break-after:page; padding:0}
-      .page:last-child{page-break-after:auto; break-after:auto}
-      h1,h2,h3{margin:0 0 10px}
-      .title{font-size:22px;font-weight:900;margin:0 0 12px}
-      .subtitle{font-size:16px;color:#475467;margin-bottom:14px}
-      table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
-      td,th{border:1px solid #bbb;padding:8px;text-align:left;vertical-align:top}
-      .label{width:220px;font-weight:700;background:#f7f7f7}
-      .summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 16px}
-      .box{border:1px solid #d1d5db;border-radius:12px;padding:12px;background:#fafafa}
-      .box .t{font-size:12px;color:#475467}.box .v{font-size:24px;font-weight:900;margin-top:4px}
-      .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef4ff;color:#175cd3;font-size:12px;font-weight:800;margin-right:6px;margin-bottom:6px}
-      .cover{text-align:center;padding-top:14mm}
-      .college{font-size:14px;letter-spacing:2px;text-transform:uppercase;color:#475467;font-weight:800}
-      .cover h1{font-size:32px;margin:14px 0 8px}
-      .cover h2{font-size:19px;color:#475467;margin:0 0 12px}
-      .coverbox{max-width:760px;margin:18px auto 0;border:2px solid #d1d5db;border-radius:18px;padding:20px;background:#fafafa}
-      .meta{margin-top:10px;font-size:16px}
-      .signature{margin-top:90px;border-top:1px solid #111;width:280px;padding-top:8px;font-size:14px}
-      .seal{margin-top:60px;width:180px;height:110px;border:1px dashed #999;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#666}
-      @page{size:A4;margin:12mm}
-    </style>
-  `;
-
-  const html = `
-  <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Expo Judge Pro v8 Report</title>${style}</head><body>
-    <section class="page">
-      <div class="cover">
-        <div class="college">Engineering College Expo Evaluation Report</div>
-        <h1>Expo Judge Pro v8</h1>
-        <h2>Official Academic Evaluation Report</h2>
-        <div class="coverbox">
-          <div class="meta"><strong>Judge Name:</strong> ${escapeHtml(entries[0].judgeName||"-")}</div>
-          <div class="meta"><strong>Panel / Committee:</strong> ${escapeHtml(entries[0].panelName||"-")}</div>
-          <div class="meta"><strong>Total Stalls Evaluated:</strong> ${entries.length}</div>
-          <div class="meta"><strong>Generated On:</strong> ${escapeHtml(new Date().toLocaleString())}</div>
-        </div>
+  const entries = sortRanked(loadEntries());
+  if(entries.length === 0){
+    alert("No saved stalls to print");
+    return;
+  }
+  const top3 = entries.slice(0,3);
+  let candidates = entries.filter(x => x.innovationAwardCandidate);
+  if(!candidates.length) candidates = entries;
+  candidates.sort((a,b) => Number(b.innovation) - Number(a.innovation) || Number(b.total) - Number(a.total));
+  const innovationWinner = candidates[0];
+  const report = document.getElementById("printReport");
+  report.innerHTML = `
+    <section class="report-page cover">
+      <h1>Engineering Expo Evaluation Report</h1>
+      <h2>Academic Final Judging Format</h2>
+      <div class="cover-box">
+        <div><strong>Judge Name:</strong> ${escapeHtml(entries[0].judgeName || "-")}</div>
+        <div style="margin-top:8px;"><strong>Panel / Committee:</strong> ${escapeHtml(entries[0].panelName || "-")}</div>
+        <div style="margin-top:8px;"><strong>Total Stalls Evaluated:</strong> ${entries.length}</div>
+        <div style="margin-top:8px;"><strong>Generated On:</strong> ${escapeHtml(new Date().toLocaleString())}</div>
       </div>
     </section>
-
-    <section class="page">
-      <div class="title">🏆 Top 3 Leaderboard</div>
-      <table>
+    <section class="report-page">
+      <div class="report-title">🏆 Top 3 Leaderboard</div>
+      <table class="report-table">
         <tr><th>Rank</th><th>Stall</th><th>Department</th><th>Stall No</th><th>Score</th><th>Average</th></tr>
-        ${[0,1,2].map(i=>{const s=top3[i]; return `<tr><td>${s?i+1:"-"}</td><td>${escapeHtml(s?.stallName||"-")}</td><td>${escapeHtml(s?.department||"-")}</td><td>${escapeHtml(s?.stallNo||"-")}</td><td>${s?escapeHtml(s.total)+"/25":"-"}</td><td>${s?escapeHtml(s.average)+"/5":"-"}</td></tr>`;}).join("")}
+        ${[0,1,2].map(i => { const s = top3[i]; return `<tr><td>${s?i+1:"-"}</td><td>${escapeHtml(s?.stallName || "-")}</td><td>${escapeHtml(s?.department || "-")}</td><td>${escapeHtml(s?.stallNo || "-")}</td><td>${s?escapeHtml(s.total)+"/25":"-"}</td><td>${s?escapeHtml(s.average)+"/5":"-"}</td></tr>`; }).join("")}
       </table>
     </section>
-
-    <section class="page">
-      <div class="title">🎯 Best Innovation Award</div>
-      <table>
-        <tr><td class="label">Winning Stall</td><td>${escapeHtml(innovationWinner?.stallName||"-")}</td></tr>
-        <tr><td class="label">Department</td><td>${escapeHtml(innovationWinner?.department||"-")}</td></tr>
-        <tr><td class="label">Stall No</td><td>${escapeHtml(innovationWinner?.stallNo||"-")}</td></tr>
-        <tr><td class="label">Innovation Score</td><td>${innovationWinner?escapeHtml(innovationWinner.innovation)+"/5":"-"}</td></tr>
-        <tr><td class="label">Overall Score</td><td>${innovationWinner?escapeHtml(innovationWinner.total)+"/25":"-"}</td></tr>
+    <section class="report-page">
+      <div class="report-title">🎯 Best Innovation Award</div>
+      <table class="report-table">
+        <tr><td class="report-label">Winning Stall</td><td>${escapeHtml(innovationWinner?.stallName || "-")}</td></tr>
+        <tr><td class="report-label">Department</td><td>${escapeHtml(innovationWinner?.department || "-")}</td></tr>
+        <tr><td class="report-label">Stall No</td><td>${escapeHtml(innovationWinner?.stallNo || "-")}</td></tr>
+        <tr><td class="report-label">Innovation Score</td><td>${innovationWinner?escapeHtml(innovationWinner.innovation)+"/5":"-"}</td></tr>
+        <tr><td class="report-label">Overall Score</td><td>${innovationWinner?escapeHtml(innovationWinner.total)+"/25":"-"}</td></tr>
       </table>
     </section>
-
-    <section class="page">
-      <div class="title">📊 Auto Ranking</div>
-      <table>
+    <section class="report-page">
+      <div class="report-title">📊 Auto Ranking</div>
+      <table class="report-table">
         <tr><th>Rank</th><th>Stall</th><th>Department</th><th>Stall No</th><th>Innovation</th><th>Total</th><th>Average</th><th>Verdict</th></tr>
-        ${entries.map((s,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(s.stallName)}</td><td>${escapeHtml(s.department)}</td><td>${escapeHtml(s.stallNo)}</td><td>${escapeHtml(s.innovation)}/5</td><td>${escapeHtml(s.total)}/25</td><td>${escapeHtml(s.average)}/5</td><td>${escapeHtml(s.verdict||"-")}</td></tr>`).join("")}
+        ${entries.map((s,i) => `<tr><td>${i+1}</td><td>${escapeHtml(s.stallName)}</td><td>${escapeHtml(s.department || "")}</td><td>${escapeHtml(s.stallNo || "")}</td><td>${escapeHtml(s.innovation)}/5</td><td>${escapeHtml(s.total)}/25</td><td>${escapeHtml(s.average)}/5</td><td>${escapeHtml(s.verdict || "-")}</td></tr>`).join("")}
       </table>
     </section>
-
-    <section class="page">
-      <div class="title">Judge Scoring Dashboard</div>
-      <table>
-        <tr><td class="label">Judge Name</td><td>${escapeHtml(entries[0].judgeName||"-")}</td></tr>
-        <tr><td class="label">Panel / Committee</td><td>${escapeHtml(entries[0].panelName||"-")}</td></tr>
-        <tr><td class="label">Total Stalls Evaluated</td><td>${entries.length}</td></tr>
-        <tr><td class="label">Top Ranked Stall</td><td>${escapeHtml(entries[0].stallName||"-")}</td></tr>
-        <tr><td class="label">Top Stall Score</td><td>${escapeHtml(entries[0].total||"-")}/25</td></tr>
-      </table>
-    </section>
-
-    ${entries.map((s,i)=>`
-      <section class="page">
-        <div class="title">${i+1}. ${escapeHtml(s.stallName)}</div>
-        <div class="subtitle">
-          <span class="chip">${escapeHtml(s.department||"-")}</span>
-          <span class="chip">Stall ${escapeHtml(s.stallNo||"-")}</span>
-          ${s.innovationAwardCandidate?'<span class="chip">Innovation Candidate</span>':''}
+    ${entries.map((s,i) => `
+      <section class="report-page">
+        <div class="report-title">${i+1}. ${escapeHtml(s.stallName)}</div>
+        <div class="report-subtitle">
+          <span class="quick-chip">${escapeHtml(s.department || "-")}</span>
+          <span class="quick-chip">Stall ${escapeHtml(s.stallNo || "-")}</span>
+          ${s.innovationAwardCandidate ? '<span class="quick-chip">Innovation Candidate</span>' : ''}
         </div>
-        <div class="summary">
-          <div class="box"><div class="t">Total Score</div><div class="v">${escapeHtml(s.total)}/25</div></div>
-          <div class="box"><div class="t">Average</div><div class="v">${escapeHtml(s.average)}/5</div></div>
+        <div class="report-summary">
+          <div class="summary-box"><div class="title">Total Score</div><div class="value">${escapeHtml(s.total)}/25</div></div>
+          <div class="summary-box"><div class="title">Average</div><div class="value">${escapeHtml(s.average)}/5</div></div>
         </div>
-        ${barRow("Innovation",s.innovation)}
-        ${barRow("Practical Use",s.practical)}
-        ${barRow("Technical Quality",s.technical)}
-        ${barRow("Presentation",s.presentation)}
-        ${barRow("Future Scope",s.future)}
-        <table>
-          <tr><td class="label">Judge Name</td><td>${escapeHtml(s.judgeName||"-")}</td></tr>
-          <tr><td class="label">Panel / Committee</td><td>${escapeHtml(s.panelName||"-")}</td></tr>
-          <tr><td class="label">Stall Name</td><td>${escapeHtml(s.stallName)}</td></tr>
-          <tr><td class="label">Department</td><td>${escapeHtml(s.department)}</td></tr>
-          <tr><td class="label">Stall No</td><td>${escapeHtml(s.stallNo)}</td></tr>
-          <tr><td class="label">Team</td><td>${escapeHtml(s.team||"-")}</td></tr>
-          <tr><td class="label">Verdict</td><td>${escapeHtml(s.verdict||"-")}</td></tr>
-          <tr><td class="label">Strengths</td><td>${escapeHtml(s.strengths||"-")}</td></tr>
-          <tr><td class="label">Improvements</td><td>${escapeHtml(s.improvements||"-")}</td></tr>
-          <tr><td class="label">Notes</td><td>${escapeHtml(s.notes||"-")}</td></tr>
-          <tr><td class="label">Formal Remark</td><td>${escapeHtml(s.remark||"-")}</td></tr>
-          <tr><td class="label">Created At</td><td>${escapeHtml(s.createdAt||"-")}</td></tr>
-          <tr><td class="label">Updated At</td><td>${escapeHtml(s.updatedAt||"-")}</td></tr>
+        <table class="report-table">
+          <tr><td class="report-label">Judge Name</td><td>${escapeHtml(s.judgeName || "-")}</td></tr>
+          <tr><td class="report-label">Panel / Committee</td><td>${escapeHtml(s.panelName || "-")}</td></tr>
+          <tr><td class="report-label">Stall Name</td><td>${escapeHtml(s.stallName || "-")}</td></tr>
+          <tr><td class="report-label">Department</td><td>${escapeHtml(s.department || "-")}</td></tr>
+          <tr><td class="report-label">Stall No</td><td>${escapeHtml(s.stallNo || "-")}</td></tr>
+          <tr><td class="report-label">Team</td><td>${escapeHtml(s.team || "-")}</td></tr>
+          <tr><td class="report-label">Verdict</td><td>${escapeHtml(s.verdict || "-")}</td></tr>
+          <tr><td class="report-label">Innovation</td><td>${escapeHtml(s.innovation)}/5</td></tr>
+          <tr><td class="report-label">Practical Use</td><td>${escapeHtml(s.practical)}/5</td></tr>
+          <tr><td class="report-label">Technical Quality</td><td>${escapeHtml(s.technical)}/5</td></tr>
+          <tr><td class="report-label">Presentation</td><td>${escapeHtml(s.presentation)}/5</td></tr>
+          <tr><td class="report-label">Future Scope</td><td>${escapeHtml(s.future)}/5</td></tr>
+          <tr><td class="report-label">Strengths</td><td>${escapeHtml(s.strengths || "-")}</td></tr>
+          <tr><td class="report-label">Improvements</td><td>${escapeHtml(s.improvements || "-")}</td></tr>
+          <tr><td class="report-label">Notes</td><td>${escapeHtml(s.notes || "-")}</td></tr>
+          <tr><td class="report-label">Formal Remark</td><td>${escapeHtml(s.remark || "-")}</td></tr>
         </table>
       </section>
     `).join("")}
-
-    <section class="page">
-      <div class="title">Official Judge Approval</div>
-      <div class="subtitle">Final sign-off for the complete academic evaluation report.</div>
+    <section class="report-page">
+      <div class="report-title">Official Judge Approval</div>
+      <div class="report-subtitle">Final sign-off for the complete expo evaluation report.</div>
       <div class="signature">Judge Signature</div>
-      <div class="seal">College Seal / Approval</div>
     </section>
-  </body></html>`;
-
-  const w = window.open("", "_blank");
-  if(!w){ alert("Pop-up blocked. Please allow pop-ups for PDF generation."); return; }
-  w.document.open();
-  w.document.write(html);
-  w.document.close();
-  w.focus();
-  setTimeout(()=>{ w.print(); }, 300);
+  `;
+  window.print();
   setStatus("Final PDF opened");
 }
-function escapeHtml(str){return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");}
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
 init();
 </script>
 </body>
