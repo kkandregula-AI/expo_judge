@@ -347,28 +347,102 @@ function printFinalPDF(){
     <meta charset="UTF-8">
     <title>Expo Judge Pro Report</title>
     <style>
-      @page { size: A4; margin: 12mm; }
-      body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#172033;margin:0}
-      .report-page{page-break-after:always;break-after:page;padding:4mm 0}
+      @page { size: A4; margin: 10mm; }
+      html,body{
+        width:210mm;
+        margin:0;
+        padding:0;
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+        color:#172033;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+      }
+      body{background:#fff;max-width:210mm}
+      .no-print{padding:8px 0 12px;text-align:right;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;}
+      @media print{ .no-print{display:none !important;} }
+      .report-page{page-break-after:always;break-after:page;width:100%;padding:0}
       .report-page:last-child{page-break-after:auto;break-after:auto}
-      .report-title{font-size:22px;font-weight:900;margin:0 0 12px}
-      .report-subtitle{font-size:16px;color:#475467;margin-bottom:14px}
-      .report-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
-      .report-table td,.report-table th{border:1px solid #bbb;padding:8px;text-align:left;vertical-align:top}
-      .report-label{width:220px;font-weight:700;background:#f7f7f7}
+      .page-shell{
+        min-height:272mm;
+        border:2px solid #2563eb;
+        border-radius:18px;
+        padding:10mm;
+        box-sizing:border-box;
+        background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+        position:relative;
+        overflow:hidden;
+      }
+      .page-shell:before{
+        content:"";
+        position:absolute;
+        inset:6px;
+        border:1px solid #dbeafe;
+        border-radius:14px;
+        pointer-events:none;
+      }
+      .page-accent{
+        position:absolute;
+        left:0;right:0;top:0;
+        height:10px;
+        background:linear-gradient(90deg,#1d4ed8,#60a5fa);
+      }
+      .report-content{position:relative;z-index:1;margin-top:8px}
+      .report-title{font-size:22px;font-weight:900;margin:0 0 12px;color:#0f172a}
+      .report-subtitle{font-size:15px;color:#475467;margin-bottom:14px}
+      .report-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;table-layout:fixed}
+      .report-table td,.report-table th{border:1px solid #cbd5e1;padding:7px;text-align:left;vertical-align:top;word-wrap:break-word;overflow-wrap:anywhere}
+      .report-table th{background:#eff6ff}
+      .report-label{width:160px;font-weight:700;background:#f8fafc}
       .report-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 16px}
       .summary-box{border:1px solid #d1d5db;border-radius:12px;padding:12px;background:#fafafa}
       .summary-box .title{font-size:12px;color:#475467}
       .summary-box .value{font-size:24px;font-weight:900;margin-top:4px}
-      .quick-chip{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef4ff;color:#175cd3;font-size:12px;font-weight:800;margin-right:6px;margin-bottom:6px}
+      .quick-chip{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef4ff;color:#175cd3;font-size:11px;font-weight:800;margin-right:6px;margin-bottom:6px}
       .bar-wrap{height:10px;background:#eef2f7;border-radius:999px;overflow:hidden;border:1px solid #dbe2ea}
       .bar-fill{height:100%;background:#1d4ed8}
       .score-row{margin-bottom:10px}
-      .score-head{display:flex;justify-content:space-between;font-size:.84rem;font-weight:700;margin-bottom:5px}
+      .score-head{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;margin-bottom:5px}
       .signature{margin-top:120px;border-top:1px solid #111;width:280px;padding-top:8px;font-size:14px}
+      .medal-cell{font-weight:800;white-space:nowrap}
+      .page-footer{margin-top:16px;font-size:11px;color:#667085;display:flex;justify-content:space-between}
+      .cover-shell{
+        min-height:272mm;
+        border:2px solid #2563eb;
+        border-radius:22px;
+        padding:10mm;
+        box-sizing:border-box;
+        background:
+          radial-gradient(circle at top right,#dbeafe 0%,#eff6ff 22%,#ffffff 60%),
+          linear-gradient(135deg,#1d4ed8 0%,#60a5fa 100%);
+        position:relative;
+        overflow:hidden;
+      }
+      .cover-shell:before{
+        content:"";
+        position:absolute;
+        inset:8px;
+        border:1px solid rgba(255,255,255,.72);
+        border-radius:18px;
+        pointer-events:none;
+      }
+      .cover-card{
+        position:relative;
+        z-index:1;
+        border-radius:18px;
+        padding:12mm;
+        background:rgba(255,255,255,.92);
+        box-shadow:0 12px 28px rgba(0,0,0,.08);
+      }
+      .cover-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-top:16px}
+      .cover-box{border:1px solid #dbeafe;border-radius:14px;padding:12px;background:#f8fbff}
+      .cover-list{columns:2;column-gap:20px;font-size:10px;line-height:1.5;margin-top:10px}
+      .cover-item{break-inside:avoid;margin-bottom:4px}
+      @media print{
+        .cover-list{columns:2}
+      }
     </style>
   </head>
-  <body><div style="padding:8px 0 12px;text-align:right;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;"><button onclick="window.close()" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;cursor:pointer;font-weight:700;">Close Report</button> <span style="font-size:12px;color:#667085;margin-left:8px;">Close this window to return to the app.</span></div>
+  <body><div class="no-print"><button onclick="window.close()" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;cursor:pointer;font-weight:700;">Close Report</button> <span style="font-size:12px;color:#667085;margin-left:8px;">Close this window to return to the app.</span></div>
     <section class="report-page">
       <div style="min-height:277mm;border-radius:20px;padding:16mm;box-sizing:border-box;background:
       radial-gradient(circle at top right,#dbeafe 0%,#eff6ff 26%,#ffffff 65%),
