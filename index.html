@@ -444,37 +444,41 @@ function printFinalPDF(){
   </head>
   <body><div class="no-print"><button onclick="window.close()" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;cursor:pointer;font-weight:700;">Close Report</button> <span style="font-size:12px;color:#667085;margin-left:8px;">Close this window to return to the app.</span></div>
     <section class="report-page">
-      <div style="min-height:277mm;border-radius:20px;padding:16mm;box-sizing:border-box;background:
-      radial-gradient(circle at top right,#dbeafe 0%,#eff6ff 26%,#ffffff 65%),
+      <div style="min-height:270mm;border-radius:20px;padding:10mm;box-sizing:border-box;background:
+      radial-gradient(circle at top right,#dbeafe 0%,#eff6ff 24%,#ffffff 64%),
       linear-gradient(135deg,#1d4ed8 0%,#60a5fa 100%);color:#0f172a;position:relative;overflow:hidden;border:2px solid #1d4ed8;">
-        <div style="position:absolute;inset:10px;border:1px solid rgba(255,255,255,.75);border-radius:16px;"></div>
-        <div style="position:relative;z-index:1;background:rgba(255,255,255,.84);border-radius:18px;padding:16mm;min-height:240mm;box-shadow:0 10px 30px rgba(0,0,0,.08);">
+        <div style="position:absolute;inset:8px;border:1px solid rgba(255,255,255,.78);border-radius:16px;"></div>
+        <div style="position:relative;z-index:1;background:rgba(255,255,255,.94);border-radius:18px;padding:10mm;min-height:246mm;box-shadow:0 10px 30px rgba(0,0,0,.08);">
           <div style="display:inline-block;padding:8px 14px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-weight:800;font-size:13px;">Engineering Expo Final Evaluation Report</div>
-          <div style="font-size:34px;font-weight:900;margin-top:14px;line-height:1.15;">${escapeHtml(entries[0]?.expoName || "Project Expo")}</div>
-          <div style="margin-top:8px;color:#475467;font-size:16px;">Digital judging summary prepared for final submission.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;">
+          <div style="font-size:24px;font-weight:900;margin-top:10px;line-height:1.1;">${escapeHtml(entries[0]?.expoName || "Project Expo")}</div>
+          <div style="margin-top:6px;color:#475467;font-size:14px;">Digital judging summary prepared for final submission.</div>
+
+          <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px;">
             <div style="border:1px solid #dbeafe;border-radius:14px;padding:12px;background:#f8fbff;">
               <div style="font-size:12px;color:#475467;">Judge Name</div>
-              <div style="font-size:20px;font-weight:800;margin-top:4px;">${escapeHtml(entries[0]?.judgeName || "-")}</div>
+              <div style="font-size:17px;font-weight:800;margin-top:4px;">${escapeHtml(entries[0]?.judgeName || "-")}</div>
             </div>
             <div style="border:1px solid #dbeafe;border-radius:14px;padding:12px;background:#f8fbff;">
               <div style="font-size:12px;color:#475467;">Panel / Committee</div>
-              <div style="font-size:20px;font-weight:800;margin-top:4px;">${escapeHtml(entries[0]?.panelName || "-")}</div>
+              <div style="font-size:17px;font-weight:800;margin-top:4px;">${escapeHtml(entries[0]?.panelName || "-")}</div>
             </div>
           </div>
-          <div style="margin-top:16px;border:1px solid #dbeafe;border-radius:14px;padding:14px;background:#ffffff;">
+
+          <div style="margin-top:10px;border:1px solid #dbeafe;border-radius:14px;padding:12px;background:#ffffff;">
             <div style="font-size:12px;color:#475467;">Total Contestants</div>
-            <div style="font-size:28px;font-weight:900;margin-top:4px;">${entries.length}</div>
+            <div style="font-size:24px;font-weight:900;margin-top:4px;">${entries.length}</div>
           </div>
-          <div style="margin-top:18px;">
-            <div style="font-size:16px;font-weight:800;margin-bottom:10px;">Contestant List</div>
-            <div style="columns:2;column-gap:20px;font-size:11px;line-height:1.55;">
-              ${entries.map((s,i)=>`<div style="break-inside:avoid;margin-bottom:4px;"><strong>${i+1}.</strong> ${escapeHtml(s.stallName || "-")} ${s.department ? `- ${escapeHtml(s.department)}` : ""} ${s.stallNo ? `(Stall ${escapeHtml(s.stallNo)})` : ""}</div>`).join("")}
+
+          <div style="margin-top:10px;">
+            <div style="font-size:15px;font-weight:800;margin-bottom:6px;">Contestant List</div>
+            <div style="display:block;width:100%;font-size:11px;line-height:1.45;">
+              ${entries.map((s,i)=>`<div style="display:block;width:100%;margin-bottom:4px;break-inside:avoid;page-break-inside:avoid;"><strong>${i+1}.</strong> ${escapeHtml(s.stallName || "-")} ${s.department ? `- ${escapeHtml(s.department)}` : ""} ${s.stallNo ? `(Stall ${escapeHtml(s.stallNo)})` : ""}</div>`).join("")}
             </div>
           </div>
-          <div style="position:absolute;left:16mm;right:16mm;bottom:16mm;display:flex;justify-content:space-between;align-items:end;">
-            <div style="font-size:12px;color:#475467;">Generated on ${escapeHtml(new Date().toLocaleString())}</div>
-            <div style="font-size:12px;color:#475467;font-weight:700;">Expo Judge Pro Report</div>
+
+          <div style="margin-top:14px;display:flex;justify-content:space-between;font-size:11px;color:#667085;">
+            <div>Generated on ${escapeHtml(new Date().toLocaleString())}</div>
+            <div>Expo Judge Pro Report</div>
           </div>
         </div>
       </div>
