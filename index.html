@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Expo Judge Pro v9.2 Final</title>
+<title>Expo Judge Pro v9.4 National Final</title>
 <meta name="theme-color" content="#1d4ed8">
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#d8dee8;--primary:#1d4ed8;--primary-soft:#eaf1ff;--success:#15803d;--success-soft:#edfdf3;--warn:#b45309;--warn-soft:#fff7ed;--danger:#b42318;--danger-soft:#fff1f3;--shadow:0 10px 28px rgba(16,24,40,.07);--star:#f59e0b}
@@ -43,6 +43,31 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .medal{font-size:20px;margin-right:6px}.empty{border:2px dashed #d1d5db;border-radius:14px;padding:16px;text-align:center;color:var(--muted)}
 .quick-chip{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef4ff;color:#175cd3;font-size:12px;font-weight:800;margin-right:6px;margin-bottom:6px}
 .footer-note{text-align:center;color:var(--muted);font-size:.84rem;padding-bottom:18px}
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  transform:none !important;
+}
+.lock-banner{
+  background:#fee2e2;
+  border:1px solid #fca5a5;
+  color:#991b1b;
+  padding:10px 12px;
+  border-radius:12px;
+  margin-top:10px;
+  font-weight:700;
+}
+.progress{
+  height:10px;
+  background:#e5e7eb;
+  border-radius:999px;
+  overflow:hidden;
+  margin-top:8px;
+}
+.progress-fill{
+  height:100%;
+  background:#1d4ed8;
+}
 .notice{background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:10px 12px;border-radius:12px;margin-top:10px}
 .bar-wrap{height:10px;background:#eef2f7;border-radius:999px;overflow:hidden;border:1px solid #dbe2ea}.bar-fill{height:100%;background:var(--primary)}
 .score-row{margin-bottom:10px}.score-head{display:flex;justify-content:space-between;font-size:.84rem;font-weight:700;margin-bottom:5px}
@@ -115,7 +140,7 @@ button:hover{transform:translateY(-1px)}
 <div><h1>Expo Judge Pro v8.2</h1><div class="muted">Refined UI/UX with the same working logic, persistence, and report flow.</div></div>
 <div><div class="badge" id="stallCounter">New Stall</div><div class="tiny" id="saveStatus">Not saved yet</div></div>
 </div>
-<div id="draftNotice" class="notice" style="display:none;"></div>
+<div id="draftNotice" class="notice" style="display:none;"></div><div id="lockBanner" class="lock-banner" style="display:none;"></div>
 </div>
 
 <div class="grid-2">
@@ -136,9 +161,9 @@ button:hover{transform:translateY(-1px)}
 
 <div class="card">
 <h2>Judge Dashboard</h2>
-<div class="metrics"><div class="metric"><div class="tiny">Total Score</div><div class="value"><span id="totalDisplay">20</span> / 25</div></div><div class="metric"><div class="tiny">Average</div><div class="value"><span id="averageDisplay">4.0</span> / 5</div></div></div>
+<div class="metrics"><div class="metric"><div class="tiny">Total Score</div><div class="value"><span id="totalDisplay">20</span> / 25</div></div><div class="metric"><div class="tiny">Average</div><div class="value"><span id="averageDisplay">4.0</span> / 5</div></div></div></div><div class="score-mini" id="scoreMini"></div><div style="margin-top:12px"><div class="tiny">Judging Progress</div><div id="progressText" class="tiny">0 stalls saved</div><div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div></div>
 <div style="margin-top:12px"><label for="remark">Formal Judge Remark</label><textarea id="remark"></textarea></div>
-<div class="btns"><button class="warn" id="endBtn" type="button">End Judgement</button><button class="ghost" id="csvBtn" type="button">Export CSV</button><button class="ghost" id="pdfBtn" type="button" disabled>Final PDF Report</button><button class="danger" id="clearBtn" type="button">Clear All Saved</button></div><div class="tiny" id="pdfStatusNote">Finish judging first. Then click <strong>End Judgement</strong> to enable the final PDF report.</div>
+<div class="btns"><button class="warn" id="endBtn" type="button">End Judgement</button><button class="ghost" id="unlockBtn" type="button" style="display:none;">Unlock Judgement</button><button class="ghost" id="csvBtn" type="button">Export CSV</button><button class="ghost" id="pdfBtn" type="button" disabled>Final Judgement Report PDF</button><button class="danger" id="clearBtn" type="button">Clear All Saved</button></div><div class="tiny" id="pdfStatusNote">Finish judging first. Then click <strong>End Judgement</strong> to enable the final judgement report.</div>
 </div>
 </div>
 
@@ -156,16 +181,20 @@ button:hover{transform:translateY(-1px)}
 <div id="printReport"></div>
 
 <script>
-const STORAGE_KEY="expo_judge_pro_v9_2";
-const DRAFT_KEY="expo_judge_pro_v9_2_draft";
-const END_KEY="expo_judge_pro_v9_2_end";
+const STORAGE_KEY="expo_judge_pro_v9_4";
+const DRAFT_KEY="expo_judge_pro_v9_4_draft";
+const END_KEY="expo_judge_pro_v9_4_end";
+const LOCK_KEY="expo_judge_pro_v9_4_lock";
+const META_KEY="expo_judge_pro_v9_4_meta";
 const CRITERIA=[["innovation","Innovation"],["practical","Practical Use"],["technical","Technical Quality"],["presentation","Presentation"],["future","Future Scope"]];
 let currentIndex=-1;
 let suppressDraftSave=false;
 
-function init(){buildCriteria();attachEvents();resetForm();restoreDraftIfAny();renderAll();updateSummary();updateHeader();syncPdfState();}
+function init(){buildCriteria();attachEvents();restoreMeta();resetForm();restoreDraftIfAny();renderAll();updateSummary();updateHeader();syncPdfState();applyLockState();}
 function buildCriteria(){criteria.innerHTML="";CRITERIA.forEach(([key,label])=>{const div=document.createElement("div");div.className="criterion";div.innerHTML='<div class="criterion-head"><div class="criterion-name">'+label+'</div><div class="pill"><span id="'+key+'Val">4</span>/5</div></div><div class="stars" id="'+key+'Stars"></div><div class="tiny">Tap 1 to 5 stars</div>';criteria.appendChild(div);const row=div.querySelector(".stars");for(let i=1;i<=5;i++){const b=document.createElement("button");b.type="button";b.className="star-btn"+(i<=4?" active":"");b.textContent="★";b.dataset.value=String(i);b.addEventListener("click",()=>setScore(key,i));row.appendChild(b);}});}
-function attachEvents(){saveBtn.addEventListener("click",()=>save(false));saveNextBtn.addEventListener("click",()=>save(true));remarkBtn.addEventListener("click",generateRemark);innovationBtn.addEventListener("click",markInnovationCandidate);prevBtn.addEventListener("click",prev);nextBtn.addEventListener("click",next);newBtn.addEventListener("click",newStall);deleteBtn.addEventListener("click",deleteEntry);csvBtn.addEventListener("click",exportCSV);pdfBtn.addEventListener("click",printFinalPDF);clearBtn.addEventListener("click",clearAll);endBtn.addEventListener("click",endJudgement);["judgeName","panelName","expoName","stallName","department","stallNo","team","verdict","strengths","improvements","notes","remark"].forEach(id=>{const el=document.getElementById(id);el.addEventListener("input",saveDraft);el.addEventListener("change",saveDraft);});window.addEventListener("beforeunload",saveDraft);}
+function attachEvents(){saveBtn.addEventListener("click",()=>save(false));saveNextBtn.addEventListener("click",()=>save(true));remarkBtn.addEventListener("click",generateRemark);innovationBtn.addEventListener("click",markInnovationCandidate);prevBtn.addEventListener("click",prev);nextBtn.addEventListener("click",next);newBtn.addEventListener("click",newStall);deleteBtn.addEventListener("click",deleteEntry);csvBtn.addEventListener("click",exportCSV);pdfBtn.addEventListener("click",printFinalPDF);clearBtn.addEventListener("click",clearAll);endBtn.addEventListener("click",endJudgement);unlockBtn.addEventListener("click",unlockJudgement);["judgeName","panelName","expoName","stallName","department","stallNo","team","verdict","strengths","improvements","notes","remark"].forEach(id=>{const el=document.getElementById(id);el.addEventListener("input",saveDraft);el.addEventListener("change",saveDraft);});["judgeName","panelName","expoName"].forEach(id=>{const el=document.getElementById(id);el.addEventListener("input",saveMeta);el.addEventListener("change",saveMeta);});window.addEventListener("beforeunload",saveDraft);}
+function saveMeta(){const meta={judgeName:judgeName.value.trim(),panelName:panelName.value.trim(),expoName:expoName.value.trim()};localStorage.setItem(META_KEY,JSON.stringify(meta));}
+function restoreMeta(){try{const meta=JSON.parse(localStorage.getItem(META_KEY)||"null");if(meta){judgeName.value=meta.judgeName||"";panelName.value=meta.panelName||"";expoName.value=meta.expoName||"";}}catch{}}
 function loadEntries(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");}catch{return [];}}
 function saveEntries(arr){localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));}
 function loadDraft(){try{return JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");}catch{return null;}}
@@ -176,16 +205,18 @@ function isDraftEmpty(d){return !d.judgeName&&!d.panelName&&!d.expoName&&!d.stal
 function restoreDraftIfAny(){const draft=loadDraft();if(!draft)return;suppressDraftSave=true;fillForm(draft);suppressDraftSave=false;updateSummary();draftNotice.textContent="Recovered unsaved draft from "+(draft.savedAt||"earlier session")+".";draftNotice.style.display="block";setStatus("Draft restored");}
 function setScore(name,val){document.getElementById(name+"Val").textContent=String(val);const row=document.getElementById(name+"Stars");row.querySelectorAll(".star-btn").forEach(b=>b.classList.toggle("active",Number(b.dataset.value)<=Number(val)));updateSummary();setStatus("Changes not saved");saveDraft();}
 function updateSummary(){let totalVal=0;CRITERIA.forEach(([key])=>totalVal+=Number(document.getElementById(key+"Val").textContent));totalDisplay.textContent=String(totalVal);averageDisplay.textContent=(totalVal/CRITERIA.length).toFixed(1);renderMiniScores();}function renderMiniScores(){scoreMini.innerHTML=CRITERIA.map(([key,label])=>{const v=Number(document.getElementById(key+"Val").textContent);const w=Math.max(0,Math.min(100,v*20));return `<div class="score-row"><div class="score-head"><span>${label}</span><span>${v}/5</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${w}%"></div></div></div>`;}).join("");}
+function renderMiniScores(){scoreMini.innerHTML=CRITERIA.map(([key,label])=>{const v=Number(document.getElementById(key+"Val").textContent);const w=Math.max(0,Math.min(100,v*20));return `<div class="score-row"><div class="score-head"><span>${label}</span><span>${v}/5</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${w}%"></div></div></div>`;}).join("");}
+function renderProgress(){const count=loadEntries().length;progressText.textContent=`${count} stall${count===1?"":"s"} saved`;const pct=Math.min(100,count*10);progressFill.style.width=`${pct}%`;}
 function getData(){const d={judgeName:judgeName.value.trim(),panelName:panelName.value.trim(),expoName:expoName.value.trim(),stallName:stallName.value.trim(),department:department.value.trim(),stallNo:stallNo.value.trim(),team:team.value.trim(),verdict:verdict.value,strengths:strengths.value.trim(),improvements:improvements.value.trim(),notes:notes.value.trim(),remark:remark.value.trim(),total:Number(totalDisplay.textContent),average:Number(averageDisplay.textContent),updatedAt:new Date().toLocaleString(),innovationAwardCandidate:false};CRITERIA.forEach(([key])=>d[key]=Number(document.getElementById(key+"Val").textContent));return d;}
 function fillForm(d){judgeName.value=d.judgeName||"";panelName.value=d.panelName||"";expoName.value=d.expoName||"";stallName.value=d.stallName||"";department.value=d.department||"";stallNo.value=d.stallNo||"";team.value=d.team||"";verdict.value=d.verdict||"Excellent";strengths.value=d.strengths||"";improvements.value=d.improvements||"";notes.value=d.notes||"";remark.value=d.remark||"";CRITERIA.forEach(([key])=>setScore(key,d[key]||4));updateSummary();}
-function resetForm(){suppressDraftSave=true;judgeName.value="";panelName.value="";expoName.value="";stallName.value="";department.value="";stallNo.value="";team.value="";verdict.value="Excellent";strengths.value="";improvements.value="";notes.value="";remark.value="";CRITERIA.forEach(([key])=>setScore(key,4));updateSummary();suppressDraftSave=false;}
-function save(goNext){const d=getData();if(!d.stallName){d.stallName=d.stallNo?"Stall "+d.stallNo:"Unnamed Stall";stallName.value=d.stallName;}if(!d.judgeName){alert("Enter judge name");return;}if(!d.remark){d.remark=buildRemark(d.average);remark.value=d.remark;}const arr=loadEntries();if(currentIndex===-1){d.createdAt=new Date().toLocaleString();arr.push(d);currentIndex=arr.length-1;}else{d.createdAt=arr[currentIndex].createdAt||new Date().toLocaleString();d.innovationAwardCandidate=!!arr[currentIndex].innovationAwardCandidate;arr[currentIndex]=d;}saveEntries(arr);clearDraft();renderAll();updateHeader();setStatus("Saved");if(goNext){const keepJudge=judgeName.value,keepPanel=panelName.value,keepExpo=expoName.value;currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;expoName.value=keepExpo;saveDraft();updateHeader();setStatus("Saved. Ready for next stall");}}
+function resetForm(){suppressDraftSave=true;stallName.value="";department.value="";stallNo.value="";team.value="";verdict.value="Excellent";strengths.value="";improvements.value="";notes.value="";remark.value="";CRITERIA.forEach(([key])=>setScore(key,4));updateSummary();suppressDraftSave=false;restoreMeta();}
+function save(goNext){const d=getData();if(!d.stallName){d.stallName=d.stallNo?"Stall "+d.stallNo:"Unnamed Stall";stallName.value=d.stallName;}if(!d.judgeName){alert("Enter judge name");return;}if(!d.remark){d.remark=buildRemark(d.average);remark.value=d.remark;}saveMeta();const arr=loadEntries();if(currentIndex===-1){d.createdAt=new Date().toLocaleString();arr.push(d);currentIndex=arr.length-1;}else{d.createdAt=arr[currentIndex].createdAt||new Date().toLocaleString();d.innovationAwardCandidate=!!arr[currentIndex].innovationAwardCandidate;arr[currentIndex]=d;}saveEntries(arr);clearDraft();saveMeta();renderAll();restoreMeta();updateHeader();setStatus("Saved");if(goNext){const keepJudge=judgeName.value,keepPanel=panelName.value,keepExpo=expoName.value;currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;expoName.value=keepExpo;saveMeta();saveDraft();updateHeader();setStatus("Saved. Ready for next stall");}}
 function markInnovationCandidate(){const arr=loadEntries();if(currentIndex===-1){alert("Save the stall first, then mark innovation candidate.");return;}arr[currentIndex].innovationAwardCandidate=true;arr[currentIndex].updatedAt=new Date().toLocaleString();saveEntries(arr);renderAll();setStatus("Marked for innovation award");}
-function newStall(){const keepJudge=judgeName.value,keepPanel=panelName.value,keepExpo=expoName.value;currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;expoName.value=keepExpo;clearDraft();saveDraft();updateHeader();setStatus("New blank stall");}
-function prev(){const arr=loadEntries();if(!arr.length){alert("No saved stalls yet");return;}if(currentIndex===-1)currentIndex=arr.length-1;else currentIndex=Math.max(0,currentIndex-1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;clearDraft();updateHeader();setStatus("Viewing saved stall");}
-function next(){const arr=loadEntries();if(!arr.length){alert("No saved stalls yet");return;}if(currentIndex===-1)currentIndex=0;else currentIndex=Math.min(arr.length-1,currentIndex+1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;clearDraft();updateHeader();setStatus("Viewing saved stall");}
-function deleteEntry(){const arr=loadEntries();if(currentIndex===-1){alert("Open a saved stall first");return;}if(!confirm("Delete this saved stall?"))return;const keepJudge=judgeName.value,keepPanel=panelName.value,keepExpo=expoName.value;arr.splice(currentIndex,1);saveEntries(arr);if(!arr.length){currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;expoName.value=keepExpo;saveDraft();}else{currentIndex=Math.min(currentIndex,arr.length-1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;}renderAll();updateHeader();setStatus("Deleted");}
-function openEntry(i){const arr=loadEntries();currentIndex=i;suppressDraftSave=true;fillForm(arr[i]);suppressDraftSave=false;clearDraft();updateHeader();setStatus("Viewing saved stall");window.scrollTo({top:0,behavior:"smooth"});}
+function newStall(){const keepJudge=judgeName.value,keepPanel=panelName.value,keepExpo=expoName.value;currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;expoName.value=keepExpo;clearDraft();saveMeta();saveDraft();restoreMeta();updateHeader();setStatus("New blank stall");}
+function prev(){const arr=loadEntries();if(!arr.length){alert("No saved stalls yet");return;}if(currentIndex===-1)currentIndex=arr.length-1;else currentIndex=Math.max(0,currentIndex-1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;clearDraft();restoreMeta();updateHeader();setStatus("Viewing saved stall");}
+function next(){const arr=loadEntries();if(!arr.length){alert("No saved stalls yet");return;}if(currentIndex===-1)currentIndex=0;else currentIndex=Math.min(arr.length-1,currentIndex+1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;clearDraft();restoreMeta();updateHeader();setStatus("Viewing saved stall");}
+function deleteEntry(){const arr=loadEntries();if(currentIndex===-1){alert("Open a saved stall first");return;}if(!confirm("Delete this saved stall?"))return;const keepJudge=judgeName.value,keepPanel=panelName.value,keepExpo=expoName.value;arr.splice(currentIndex,1);saveEntries(arr);if(!arr.length){currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;expoName.value=keepExpo;saveDraft();}else{currentIndex=Math.min(currentIndex,arr.length-1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;}renderAll();restoreMeta();updateHeader();setStatus("Deleted");}
+function openEntry(i){const arr=loadEntries();currentIndex=i;suppressDraftSave=true;fillForm(arr[i]);suppressDraftSave=false;clearDraft();restoreMeta();updateHeader();setStatus("Viewing saved stall");window.scrollTo({top:0,behavior:"smooth"});}
 function sortRanked(entries){return [...entries].sort((a,b)=>{if(Number(b.total)!==Number(a.total))return Number(b.total)-Number(a.total);if(Number(b.innovation)!==Number(a.innovation))return Number(b.innovation)-Number(a.innovation);return (a.stallName||"").localeCompare(b.stallName||"");});}
 function renderAll(){const entries=loadEntries();renderLeaderboard(entries);renderInnovationAward(entries);renderRanking(entries);renderSavedEntries(entries);}
 function renderLeaderboard(entries){const ranked=sortRanked(entries).slice(0,3);if(!ranked.length){leaderboard.innerHTML='<div class="empty">No saved stalls yet</div>';return;}const medals=[["🥇","gold"],["🥈","silver"],["🥉","bronze"]];leaderboard.innerHTML=ranked.map((s,i)=>`<div class="leader ${medals[i][1]}"><div><span class="medal">${medals[i][0]}</span><strong>${escapeHtml(s.stallName)}</strong></div><div class="tiny">${escapeHtml(s.department||"")} ${s.stallNo?"• "+escapeHtml(s.stallNo):""}</div><div class="tiny" style="margin-top:6px;">Score: <strong>${s.total}/25</strong> • Avg: <strong>${s.average}/5</strong></div></div>`).join("");}
@@ -196,9 +227,50 @@ function buildRemark(avg){if(avg>4.5)return "Excellent project with strong imple
 function generateRemark(){remark.value=buildRemark(Number(averageDisplay.textContent));saveDraft();setStatus("Remark generated");}
 function updateHeader(){stallCounter.textContent=currentIndex===-1?"New Stall":`Stall ${currentIndex+1} of ${loadEntries().length}`;}
 function setStatus(msg){saveStatus.textContent=msg;}
-function clearAll(){if(!confirm("Clear all saved stall feedback?"))return;localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(DRAFT_KEY);localStorage.removeItem(END_KEY);currentIndex=-1;resetForm();renderAll();updateHeader();draftNotice.style.display="none";syncPdfState();setStatus("All saved feedback cleared");}
-function syncPdfState(){const ended=localStorage.getItem(END_KEY)==="yes";pdfBtn.disabled=!ended;pdfStatusNote.innerHTML=ended?'Judgement ended. Final PDF report is enabled. You can still edit entries if needed and generate the report again.':'Finish judging first. Then click <strong>End Judgement</strong> to enable the final PDF report.';endBtn.textContent=ended?"Judgement Ended":"End Judgement";}
-function endJudgement(){if(loadEntries().length===0){alert("Save at least one stall before ending judgement.");return;}localStorage.setItem(END_KEY,"yes");syncPdfState();setStatus("Judgement ended. Final PDF enabled");}
+function clearAll(){if(!confirm("Clear all saved stall feedback?"))return;localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(DRAFT_KEY);localStorage.removeItem(END_KEY);localStorage.removeItem(LOCK_KEY);localStorage.removeItem(META_KEY);currentIndex=-1;resetForm();renderAll();updateHeader();draftNotice.style.display="none";syncPdfState();applyLockState();setStatus("All saved feedback cleared");}
+
+function syncPdfState(){
+  const ended=localStorage.getItem(END_KEY)==="yes";
+  pdfBtn.disabled=!ended;
+  pdfStatusNote.innerHTML=ended?'Judgement ended. Final judgement report is enabled. You can still unlock, edit entries, end judgement again, and generate a fresh report.':'Finish judging first. Then click <strong>End Judgement</strong> to enable the final judgement report.';
+  endBtn.textContent=ended?"Judgement Ended":"End Judgement";
+}
+function applyLockState(){
+  const locked=localStorage.getItem(LOCK_KEY)==="yes";
+  lockBanner.style.display=locked?"block":"none";
+  lockBanner.textContent=locked?"🔒 Final judgement locked. Click Unlock Judgement to make any changes.":"";
+  unlockBtn.style.display=locked?"inline-block":"none";
+  const ids=["stallName","department","stallNo","team","verdict","strengths","improvements","notes","remark"];
+  ids.forEach(id=>{document.getElementById(id).disabled=locked;});
+  document.querySelectorAll(".star-btn").forEach(btn=>btn.disabled=locked);
+  saveBtn.disabled=locked;
+  saveNextBtn.disabled=locked;
+  remarkBtn.disabled=locked;
+  innovationBtn.disabled=locked;
+  deleteBtn.disabled=locked;
+  prevBtn.disabled=false;
+  nextBtn.disabled=false;
+  newBtn.disabled=locked;
+  endBtn.disabled=locked;
+  judgeName.disabled=false;
+  panelName.disabled=false;
+  expoName.disabled=false;
+}
+function endJudgement(){
+  if(loadEntries().length===0){alert("Save at least one stall before ending judgement.");return;}
+  localStorage.setItem(END_KEY,"yes");
+  localStorage.setItem(LOCK_KEY,"yes");
+  saveMeta();
+  syncPdfState();
+  applyLockState();
+  setStatus("Judgement ended and locked. Final judgement report enabled");
+}
+function unlockJudgement(){
+  localStorage.removeItem(LOCK_KEY);
+  syncPdfState();
+  applyLockState();
+  setStatus("Judgement unlocked. You can edit stalls and end judgement again");
+}
 function exportCSV(){const arr=sortRanked(loadEntries());if(!arr.length){alert("No saved stalls to export");return;}const headers=["Rank","Stall Name","Department","Stall No","Team","Verdict","Innovation","Practical Use","Technical Quality","Presentation","Future Scope","Total","Average","Strengths","Improvements","Notes","Remark","Created At","Updated At"];const rows=arr.map((s,idx)=>[idx+1,s.stallName,s.department,s.stallNo,s.team,s.verdict,s.innovation,s.practical,s.technical,s.presentation,s.future,s.total,s.average,s.strengths,s.improvements,s.notes,s.remark,s.createdAt,s.updatedAt]);const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="expo-stall-feedback-v8-2.csv";a.click();URL.revokeObjectURL(url);setStatus("CSV exported");}
 
 function printFinalPDF(){
@@ -240,7 +312,7 @@ function printFinalPDF(){
       .signature{margin-top:120px;border-top:1px solid #111;width:280px;padding-top:8px;font-size:14px}
     </style>
   </head>
-  <body>
+  <body><div style="padding:8px 0 12px;text-align:right;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;"><button onclick="window.close()" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;cursor:pointer;font-weight:700;">Close Report</button> <span style="font-size:12px;color:#667085;margin-left:8px;">Close this window to return to the app.</span></div>
     <section class="report-page">
       <div style="min-height:277mm;border-radius:20px;padding:16mm;box-sizing:border-box;background:
       radial-gradient(circle at top right,#dbeafe 0%,#eff6ff 26%,#ffffff 65%),
@@ -345,7 +417,7 @@ function printFinalPDF(){
   </body>
   </html>`;
 
-  const printWin = window.open("", "_blank");
+  const printWin = window.open("", "_blank", "popup=yes,width=980,height=760,menubar=yes,toolbar=yes,location=yes,status=yes,scrollbars=yes,resizable=yes");
   if(!printWin){ alert("Popup blocked. Please allow popups for printing."); return; }
   printWin.document.open();
   printWin.document.write(reportHtml);
