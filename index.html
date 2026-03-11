@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Expo Judge Pro v9.4 National Final</title>
+<title>Expo Judge Pro v9.5 National Final</title>
 <meta name="theme-color" content="#1d4ed8">
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#d8dee8;--primary:#1d4ed8;--primary-soft:#eaf1ff;--success:#15803d;--success-soft:#edfdf3;--warn:#b45309;--warn-soft:#fff7ed;--danger:#b42318;--danger-soft:#fff1f3;--shadow:0 10px 28px rgba(16,24,40,.07);--star:#f59e0b}
@@ -57,6 +57,33 @@ button:disabled{
   margin-top:10px;
   font-weight:700;
 }
+.winner-screen{
+  background:linear-gradient(135deg,#fff7ed 0%,#ffffff 42%,#eff6ff 100%);
+  border:1px solid #dbeafe;
+  border-radius:18px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+.winner-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:12px;
+}
+.winner-card{
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  padding:14px;
+  background:#fff;
+}
+.winner-card.gold{background:#fffaf0;border-color:#fcd34d}
+.winner-card.silver{background:#f8fafc;border-color:#cbd5e1}
+.winner-card.bronze{background:#fff7ed;border-color:#fdba74}
+.winner-label{font-size:12px;color:#667085;font-weight:700;margin-bottom:6px}
+.winner-name{font-size:18px;font-weight:800;line-height:1.25}
+.winner-sub{font-size:12px;color:#667085;margin-top:4px}
+@media (max-width:768px){.winner-grid{grid-template-columns:1fr}}
+
 .progress{
   height:10px;
   background:#e5e7eb;
@@ -163,7 +190,7 @@ button:hover{transform:translateY(-1px)}
 <h2>Judge Dashboard</h2>
 <div class="metrics"><div class="metric"><div class="tiny">Total Score</div><div class="value"><span id="totalDisplay">20</span> / 25</div></div><div class="metric"><div class="tiny">Average</div><div class="value"><span id="averageDisplay">4.0</span> / 5</div></div></div></div><div class="score-mini" id="scoreMini"></div><div style="margin-top:12px"><div class="tiny">Judging Progress</div><div id="progressText" class="tiny">0 stalls saved</div><div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div></div>
 <div style="margin-top:12px"><label for="remark">Formal Judge Remark</label><textarea id="remark"></textarea></div>
-<div class="btns"><button class="warn" id="endBtn" type="button">End Judgement</button><button class="ghost" id="unlockBtn" type="button" style="display:none;">Unlock Judgement</button><button class="ghost" id="csvBtn" type="button">Export CSV</button><button class="ghost" id="pdfBtn" type="button" disabled>Final Judgement Report PDF</button><button class="danger" id="clearBtn" type="button">Clear All Saved</button></div><div class="tiny" id="pdfStatusNote">Finish judging first. Then click <strong>End Judgement</strong> to enable the final judgement report.</div>
+<div class="btns"><button class="warn" id="endBtn" type="button">End Judgement</button><button class="ghost" id="unlockBtn" type="button" style="display:none;">Unlock Judgement</button><button class="ghost" id="csvBtn" type="button">Export CSV</button><button class="ghost" id="pdfBtn" type="button" disabled>Final Judgement Report PDF</button><button class="danger" id="clearBtn" type="button">Clear All Saved</button></div><div class="tiny" id="pdfStatusNote">Finish judging first. Then click <strong>End Judgement</strong> to enable the Final Judgement Report PDF.</div>
 </div>
 </div>
 
@@ -172,6 +199,14 @@ button:hover{transform:translateY(-1px)}
 <div class="card"><h2>🎯 Best Innovation Award</h2><div id="innovationAward" class="item"></div></div>
 <div class="card"><h2>📊 Auto Ranking</h2><div id="rankingList" class="list"></div></div>
 </div>
+</div>
+
+<div class="card" id="winnerScreenCard" style="display:none;">
+  <div class="winner-screen">
+    <h2>🏆 Winner Announcement</h2>
+    <div class="muted">Final results are ready. You can still unlock judgement, make changes, and end judgement again if required.</div>
+    <div class="winner-grid" id="winnerGrid"></div>
+  </div>
 </div>
 
 <div class="card"><h2>Saved Stall Entries</h2><div id="savedList" class="list"></div></div>
@@ -190,7 +225,7 @@ const CRITERIA=[["innovation","Innovation"],["practical","Practical Use"],["tech
 let currentIndex=-1;
 let suppressDraftSave=false;
 
-function init(){buildCriteria();attachEvents();restoreMeta();resetForm();restoreDraftIfAny();renderAll();updateSummary();updateHeader();syncPdfState();applyLockState();}
+function init(){buildCriteria();attachEvents();restoreMeta();resetForm();restoreDraftIfAny();renderAll();updateSummary();updateHeader();syncPdfState();applyLockState();window.addEventListener("focus",()=>{renderAll();updateHeader();syncPdfState();applyLockState();});document.addEventListener("visibilitychange",()=>{if(!document.hidden){renderAll();updateHeader();syncPdfState();applyLockState();}});}
 function buildCriteria(){criteria.innerHTML="";CRITERIA.forEach(([key,label])=>{const div=document.createElement("div");div.className="criterion";div.innerHTML='<div class="criterion-head"><div class="criterion-name">'+label+'</div><div class="pill"><span id="'+key+'Val">4</span>/5</div></div><div class="stars" id="'+key+'Stars"></div><div class="tiny">Tap 1 to 5 stars</div>';criteria.appendChild(div);const row=div.querySelector(".stars");for(let i=1;i<=5;i++){const b=document.createElement("button");b.type="button";b.className="star-btn"+(i<=4?" active":"");b.textContent="★";b.dataset.value=String(i);b.addEventListener("click",()=>setScore(key,i));row.appendChild(b);}});}
 function attachEvents(){saveBtn.addEventListener("click",()=>save(false));saveNextBtn.addEventListener("click",()=>save(true));remarkBtn.addEventListener("click",generateRemark);innovationBtn.addEventListener("click",markInnovationCandidate);prevBtn.addEventListener("click",prev);nextBtn.addEventListener("click",next);newBtn.addEventListener("click",newStall);deleteBtn.addEventListener("click",deleteEntry);csvBtn.addEventListener("click",exportCSV);pdfBtn.addEventListener("click",printFinalPDF);clearBtn.addEventListener("click",clearAll);endBtn.addEventListener("click",endJudgement);unlockBtn.addEventListener("click",unlockJudgement);["judgeName","panelName","expoName","stallName","department","stallNo","team","verdict","strengths","improvements","notes","remark"].forEach(id=>{const el=document.getElementById(id);el.addEventListener("input",saveDraft);el.addEventListener("change",saveDraft);});["judgeName","panelName","expoName"].forEach(id=>{const el=document.getElementById(id);el.addEventListener("input",saveMeta);el.addEventListener("change",saveMeta);});window.addEventListener("beforeunload",saveDraft);}
 function saveMeta(){const meta={judgeName:judgeName.value.trim(),panelName:panelName.value.trim(),expoName:expoName.value.trim()};localStorage.setItem(META_KEY,JSON.stringify(meta));}
@@ -218,11 +253,32 @@ function next(){const arr=loadEntries();if(!arr.length){alert("No saved stalls y
 function deleteEntry(){const arr=loadEntries();if(currentIndex===-1){alert("Open a saved stall first");return;}if(!confirm("Delete this saved stall?"))return;const keepJudge=judgeName.value,keepPanel=panelName.value,keepExpo=expoName.value;arr.splice(currentIndex,1);saveEntries(arr);if(!arr.length){currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;expoName.value=keepExpo;saveDraft();}else{currentIndex=Math.min(currentIndex,arr.length-1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;}renderAll();restoreMeta();updateHeader();setStatus("Deleted");}
 function openEntry(i){const arr=loadEntries();currentIndex=i;suppressDraftSave=true;fillForm(arr[i]);suppressDraftSave=false;clearDraft();restoreMeta();updateHeader();setStatus("Viewing saved stall");window.scrollTo({top:0,behavior:"smooth"});}
 function sortRanked(entries){return [...entries].sort((a,b)=>{if(Number(b.total)!==Number(a.total))return Number(b.total)-Number(a.total);if(Number(b.innovation)!==Number(a.innovation))return Number(b.innovation)-Number(a.innovation);return (a.stallName||"").localeCompare(b.stallName||"");});}
-function renderAll(){const entries=loadEntries();renderLeaderboard(entries);renderInnovationAward(entries);renderRanking(entries);renderSavedEntries(entries);}
+function renderAll(){const entries=loadEntries();renderLeaderboard(entries);renderInnovationAward(entries);renderRanking(entries);renderSavedEntries(entries);renderWinnerScreen(entries);}
 function renderLeaderboard(entries){const ranked=sortRanked(entries).slice(0,3);if(!ranked.length){leaderboard.innerHTML='<div class="empty">No saved stalls yet</div>';return;}const medals=[["🥇","gold"],["🥈","silver"],["🥉","bronze"]];leaderboard.innerHTML=ranked.map((s,i)=>`<div class="leader ${medals[i][1]}"><div><span class="medal">${medals[i][0]}</span><strong>${escapeHtml(s.stallName)}</strong></div><div class="tiny">${escapeHtml(s.department||"")} ${s.stallNo?"• "+escapeHtml(s.stallNo):""}</div><div class="tiny" style="margin-top:6px;">Score: <strong>${s.total}/25</strong> • Avg: <strong>${s.average}/5</strong></div></div>`).join("");}
 function renderInnovationAward(entries){if(!entries.length){innovationAward.innerHTML='<div class="empty">No saved stalls yet</div>';return;}let candidates=entries.filter(x=>x.innovationAwardCandidate);if(!candidates.length)candidates=entries;candidates.sort((a,b)=>Number(b.innovation)-Number(a.innovation)||Number(b.total)-Number(a.total));const s=candidates[0];innovationAward.innerHTML=`<div><strong>${escapeHtml(s.stallName||"")}</strong></div><div class="tiny">${escapeHtml(s.department||"")} ${s.stallNo?"• "+escapeHtml(s.stallNo):""}</div><div class="tiny" style="margin-top:6px;">Innovation Score: <strong>${s.innovation}/5</strong></div><div class="tiny">Overall Score: <strong>${s.total}/25</strong></div>`;}
 function renderRanking(entries){const ranked=sortRanked(entries);if(!ranked.length){rankingList.innerHTML='<div class="empty">No ranking yet</div>';return;}rankingList.innerHTML=ranked.map((s,i)=>`<div class="item"><div class="item-top"><div><strong>${i+1}. ${escapeHtml(s.stallName)}</strong><div class="tiny">${escapeHtml(s.department||"")} ${s.stallNo?"• "+escapeHtml(s.stallNo):""}</div></div><div class="quick-chip">${s.total}/25</div></div><div class="tiny">Innovation ${s.innovation}/5 • Verdict ${escapeHtml(s.verdict||"-")}</div></div>`).join("");}
 function renderSavedEntries(entries){if(!entries.length){savedList.innerHTML='<div class="empty">No saved stalls yet</div>';return;}savedList.innerHTML=entries.map((e,i)=>`<div class="item"><div class="item-top"><div><b>${escapeHtml(e.stallName||"")}</b><div class="tiny">${escapeHtml(e.department||"")} ${e.stallNo?"• "+escapeHtml(e.stallNo):""}</div><div class="tiny">Judge: ${escapeHtml(e.judgeName||"-")} ${e.panelName?"• "+escapeHtml(e.panelName):""}</div><div class="tiny">${escapeHtml(e.verdict||"")} • ${e.total||0}/25${e.innovationAwardCandidate?" • Innovation Candidate":""}</div></div><button class="ghost open-btn" data-index="${i}" type="button">Open</button></div></div>`).join("");savedList.querySelectorAll(".open-btn").forEach(btn=>btn.addEventListener("click",()=>openEntry(Number(btn.dataset.index))));}
+
+function renderWinnerScreen(entries){
+  const ended = localStorage.getItem(END_KEY)==="yes";
+  winnerScreenCard.style.display = ended && entries.length ? "block" : "none";
+  if(!(ended && entries.length)) return;
+
+  const ranked = sortRanked(entries);
+  const top3 = ranked.slice(0,3);
+  let candidates = entries.filter(x=>x.innovationAwardCandidate);
+  if(!candidates.length) candidates = entries;
+  candidates.sort((a,b)=>Number(b.innovation)-Number(a.innovation)||Number(b.total)-Number(a.total));
+  const innovationWinner = candidates[0];
+
+  const cards = [];
+  if(top3[0]) cards.push(`<div class="winner-card gold"><div class="winner-label">🥇 Gold Winner</div><div class="winner-name">${escapeHtml(top3[0].stallName)}</div><div class="winner-sub">${escapeHtml(top3[0].department||"-")} ${top3[0].stallNo ? "• Stall "+escapeHtml(top3[0].stallNo) : ""} • ${top3[0].total}/25</div></div>`);
+  if(top3[1]) cards.push(`<div class="winner-card silver"><div class="winner-label">🥈 Silver Winner</div><div class="winner-name">${escapeHtml(top3[1].stallName)}</div><div class="winner-sub">${escapeHtml(top3[1].department||"-")} ${top3[1].stallNo ? "• Stall "+escapeHtml(top3[1].stallNo) : ""} • ${top3[1].total}/25</div></div>`);
+  if(top3[2]) cards.push(`<div class="winner-card bronze"><div class="winner-label">🥉 Bronze Winner</div><div class="winner-name">${escapeHtml(top3[2].stallName)}</div><div class="winner-sub">${escapeHtml(top3[2].department||"-")} ${top3[2].stallNo ? "• Stall "+escapeHtml(top3[2].stallNo) : ""} • ${top3[2].total}/25</div></div>`);
+  if(innovationWinner) cards.push(`<div class="winner-card"><div class="winner-label">🎯 Best Innovation Award</div><div class="winner-name">${escapeHtml(innovationWinner.stallName)}</div><div class="winner-sub">${escapeHtml(innovationWinner.department||"-")} ${innovationWinner.stallNo ? "• Stall "+escapeHtml(innovationWinner.stallNo) : ""} • Innovation ${innovationWinner.innovation}/5</div></div>`);
+  winnerGrid.innerHTML = cards.join("");
+}
+
 function buildRemark(avg){if(avg>4.5)return "Excellent project with strong implementation and practical relevance.";if(avg>4.0)return "Very good project with clear concept and useful application.";if(avg>3.0)return "Promising project with good potential.";return "Sincere effort. Further improvement recommended.";}
 function generateRemark(){remark.value=buildRemark(Number(averageDisplay.textContent));saveDraft();setStatus("Remark generated");}
 function updateHeader(){stallCounter.textContent=currentIndex===-1?"New Stall":`Stall ${currentIndex+1} of ${loadEntries().length}`;}
@@ -232,7 +288,7 @@ function clearAll(){if(!confirm("Clear all saved stall feedback?"))return;localS
 function syncPdfState(){
   const ended=localStorage.getItem(END_KEY)==="yes";
   pdfBtn.disabled=!ended;
-  pdfStatusNote.innerHTML=ended?'Judgement ended. Final judgement report is enabled. You can still unlock, edit entries, end judgement again, and generate a fresh report.':'Finish judging first. Then click <strong>End Judgement</strong> to enable the final judgement report.';
+  pdfStatusNote.innerHTML=ended?'Judgement ended. Final Judgement Report PDF is enabled. You can still unlock, edit entries, end judgement again, and generate a fresh report.':'Finish judging first. Then click <strong>End Judgement</strong> to enable the Final Judgement Report PDF.';
   endBtn.textContent=ended?"Judgement Ended":"End Judgement";
 }
 function applyLockState(){
@@ -263,7 +319,7 @@ function endJudgement(){
   saveMeta();
   syncPdfState();
   applyLockState();
-  setStatus("Judgement ended and locked. Final judgement report enabled");
+  setStatus("Judgement ended and locked. Final Judgement Report PDF enabled");
 }
 function unlockJudgement(){
   localStorage.removeItem(LOCK_KEY);
