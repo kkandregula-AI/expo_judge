@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Expo Judge Pro v9 UI Final</title>
+<title>Expo Judge Pro v9.1 UI Final</title>
 <meta name="theme-color" content="#1d4ed8">
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#d8dee8;--primary:#1d4ed8;--primary-soft:#eaf1ff;--success:#15803d;--success-soft:#edfdf3;--warn:#b45309;--warn-soft:#fff7ed;--danger:#b42318;--danger-soft:#fff1f3;--shadow:0 10px 28px rgba(16,24,40,.07);--star:#f59e0b}
@@ -235,15 +235,15 @@ function printFinalPDF(){
     </style>
   </head>
   <body>
-    <section class="report-page">
+    <section class="report-page"><div class="page-shell"><div class="page-accent"></div><div class="report-content">
       <div class="report-title">🏆 Top 3 Leaderboard</div>
       <table class="report-table">
         <tr><th>Medal</th><th>Stall</th><th>Department</th><th>Stall No</th><th>Score</th><th>Average</th></tr>
         ${[0,1,2].map(i=>{const s=top3[i];const medal=i===0?"🥇 Gold":i===1?"🥈 Silver":"🥉 Bronze";return `<tr><td style="font-weight:800;white-space:nowrap">${s?medal:"-"}</td><td>${escapeHtml(s?.stallName||"-")}</td><td>${escapeHtml(s?.department||"-")}</td><td>${escapeHtml(s?.stallNo||"-")}</td><td>${s?escapeHtml(s.total)+"/25":"-"}</td><td>${s?escapeHtml(s.average)+"/5":"-"}</td></tr>`;}).join("")}
       </table>
-    </section>
+      </div><div class="page-footer">Expo Judge Pro Report</div></div></section>
 
-    <section class="report-page">
+    <section class="report-page"><div class="page-shell"><div class="page-accent"></div><div class="report-content">
       <div class="report-title">🎯 Best Innovation Award</div>
       <table class="report-table">
         <tr><td class="report-label">Winning Stall</td><td>${escapeHtml(innovationWinner?.stallName||"-")}</td></tr>
@@ -252,15 +252,15 @@ function printFinalPDF(){
         <tr><td class="report-label">Innovation Score</td><td>${innovationWinner?escapeHtml(innovationWinner.innovation)+"/5":"-"}</td></tr>
         <tr><td class="report-label">Overall Score</td><td>${innovationWinner?escapeHtml(innovationWinner.total)+"/25":"-"}</td></tr>
       </table>
-    </section>
+      </div><div class="page-footer">Expo Judge Pro Report</div></div></section>
 
-    <section class="report-page">
+    <section class="report-page"><div class="page-shell"><div class="page-accent"></div><div class="report-content">
       <div class="report-title">📊 Auto Ranking</div>
       <table class="report-table">
         <tr><th>Rank</th><th>Stall</th><th>Department</th><th>Stall No</th><th>Innovation</th><th>Total</th><th>Average</th><th>Verdict</th></tr>
         ${entries.map((s,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(s.stallName)}</td><td>${escapeHtml(s.department||"")}</td><td>${escapeHtml(s.stallNo||"")}</td><td>${escapeHtml(s.innovation)}/5</td><td>${escapeHtml(s.total)}/25</td><td>${escapeHtml(s.average)}/5</td><td>${escapeHtml(s.verdict||"-")}</td></tr>`).join("")}
       </table>
-    </section>
+      </div><div class="page-footer">Expo Judge Pro Report</div></div></section>
 
     ${entries.map((s,i)=>`<section class="report-page">
       <div class="report-title">${i+1}. ${escapeHtml(s.stallName)}</div>
@@ -294,11 +294,11 @@ function printFinalPDF(){
       </table>
     </section>`).join("")}
 
-    <section class="report-page">
+    <section class="report-page"><div class="page-shell"><div class="page-accent"></div><div class="report-content">
       <div class="report-title">Official Judge Approval</div>
       <div class="report-subtitle">Final sign-off for the complete expo evaluation report.</div>
       <div class="signature">Judge Signature</div>
-    </section>
+      </div><div class="page-footer">Expo Judge Pro Report</div></div></section>
   </body>
   </html>`;
 
@@ -308,7 +308,7 @@ function printFinalPDF(){
   printWin.document.write(reportHtml);
   printWin.document.close();
   printWin.focus();
-  setTimeout(()=>{ printWin.print(); }, 300);
+  setTimeout(()=>{ printWin.print(); }, 500);
   setStatus("Final PDF opened");
 }
 function barRow(label,value){const width=Math.max(0,Math.min(100,(Number(value)||0)*20));return `<div class="score-row"><div class="score-head"><span>${label}</span><span>${value}/5</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${width}%"></div></div></div>`;}
