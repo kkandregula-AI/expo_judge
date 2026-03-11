@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Expo Judge Pro v9.5 National Final</title>
+<title>Expo Judge Pro v9.7 National Final</title>
 <meta name="theme-color" content="#1d4ed8">
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#d8dee8;--primary:#1d4ed8;--primary-soft:#eaf1ff;--success:#15803d;--success-soft:#edfdf3;--warn:#b45309;--warn-soft:#fff7ed;--danger:#b42318;--danger-soft:#fff1f3;--shadow:0 10px 28px rgba(16,24,40,.07);--star:#f59e0b}
@@ -363,7 +363,7 @@ function printFinalPDF(){
       .report-page{page-break-after:always;break-after:page;width:100%;padding:0}
       .report-page:last-child{page-break-after:auto;break-after:auto}
       .page-shell{
-        min-height:272mm;
+        min-height:270mm;
         border:2px solid #2563eb;
         border-radius:18px;
         padding:10mm;
@@ -406,7 +406,7 @@ function printFinalPDF(){
       .medal-cell{font-weight:800;white-space:nowrap}
       .page-footer{margin-top:16px;font-size:11px;color:#667085;display:flex;justify-content:space-between}
       .cover-shell{
-        min-height:272mm;
+        min-height:270mm;
         border:2px solid #2563eb;
         border-radius:22px;
         padding:10mm;
@@ -429,13 +429,13 @@ function printFinalPDF(){
         position:relative;
         z-index:1;
         border-radius:18px;
-        padding:12mm;
-        background:rgba(255,255,255,.92);
+        padding:10mm;
+        background:rgba(255,255,255,.94);
         box-shadow:0 12px 28px rgba(0,0,0,.08);
       }
       .cover-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-top:16px}
       .cover-box{border:1px solid #dbeafe;border-radius:14px;padding:12px;background:#f8fbff}
-      .cover-list{columns:2;column-gap:20px;font-size:10px;line-height:1.5;margin-top:10px}
+      .cover-list{columns:1;column-gap:0;font-size:11px;line-height:1.45;margin-top:8px}
       .cover-item{break-inside:avoid;margin-bottom:4px}
       @media print{
         .cover-list{columns:2}
