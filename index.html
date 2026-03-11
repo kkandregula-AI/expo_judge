@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Expo Judge Pro v9.1 UI Final</title>
+<title>Expo Judge Pro v9.2 Final</title>
 <meta name="theme-color" content="#1d4ed8">
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#d8dee8;--primary:#1d4ed8;--primary-soft:#eaf1ff;--success:#15803d;--success-soft:#edfdf3;--warn:#b45309;--warn-soft:#fff7ed;--danger:#b42318;--danger-soft:#fff1f3;--shadow:0 10px 28px rgba(16,24,40,.07);--star:#f59e0b}
@@ -25,6 +25,7 @@ textarea{min-height:90px;resize:vertical}
 .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 button{border:none;border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer}
 .primary{background:var(--primary);color:#fff}.ghost{background:#fff;color:var(--text);border:1px solid var(--line)}.success{background:var(--success-soft);color:var(--success);border:1px solid #b7e5c0}.warn{background:var(--warn-soft);color:var(--warn);border:1px solid #fed7aa}.danger{background:var(--danger-soft);color:var(--danger);border:1px solid #f8b4c0}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .criteria-title{font-size:1rem;font-weight:800;margin:14px 0 8px}.criteria-note{font-size:.88rem;color:var(--muted);margin-bottom:12px}
 .criterion{border:1px solid #e7ebf0;border-radius:14px;padding:12px;margin-bottom:10px;background:#fcfdff}
 .criterion-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
@@ -123,6 +124,7 @@ button:hover{transform:translateY(-1px)}
 <div class="btns" style="margin-top:0;margin-bottom:10px"><button class="ghost" id="prevBtn" type="button">◀ Previous</button><button class="ghost" id="nextBtn" type="button">Next ▶</button><button class="ghost" id="newBtn" type="button">New Blank Stall</button></div>
 <div class="tiny">All judges discuss together, and one final judge enters the agreed score here.</div>
 <div class="row2" style="margin-top:12px"><div><label for="judgeName">Judge Name</label><input id="judgeName"></div><div><label for="panelName">Panel / Committee</label><input id="panelName"></div></div>
+<div><label for="expoName">Expo Name</label><input id="expoName" placeholder="e.g. National Engineering Project Expo 2026"></div>
 <div class="row"><div><label for="stallName">Stall Name</label><input id="stallName"></div><div><label for="department">Department</label><input id="department"></div><div><label for="stallNo">Stall No</label><input id="stallNo"></div></div>
 <div class="row2"><div><label for="team">Team</label><input id="team"></div><div><label for="verdict">Verdict</label><select id="verdict"><option>Excellent</option><option>Very Good</option><option>Good</option><option>Promising</option><option>Needs Improvement</option></select></div></div>
 <div class="criteria-title">Fast Star Scoring</div><div class="criteria-note">Tap stars for each category.</div><div id="criteria"></div>
@@ -136,7 +138,7 @@ button:hover{transform:translateY(-1px)}
 <h2>Judge Dashboard</h2>
 <div class="metrics"><div class="metric"><div class="tiny">Total Score</div><div class="value"><span id="totalDisplay">20</span> / 25</div></div><div class="metric"><div class="tiny">Average</div><div class="value"><span id="averageDisplay">4.0</span> / 5</div></div></div>
 <div style="margin-top:12px"><label for="remark">Formal Judge Remark</label><textarea id="remark"></textarea></div>
-<div class="btns"><button class="ghost" id="csvBtn" type="button">Export CSV</button><button class="ghost" id="pdfBtn" type="button">Final PDF Report</button><button class="danger" id="clearBtn" type="button">Clear All Saved</button></div>
+<div class="btns"><button class="warn" id="endBtn" type="button">End Judgement</button><button class="ghost" id="csvBtn" type="button">Export CSV</button><button class="ghost" id="pdfBtn" type="button" disabled>Final PDF Report</button><button class="danger" id="clearBtn" type="button">Clear All Saved</button></div><div class="tiny" id="pdfStatusNote">Finish judging first. Then click <strong>End Judgement</strong> to enable the final PDF report.</div>
 </div>
 </div>
 
@@ -154,34 +156,35 @@ button:hover{transform:translateY(-1px)}
 <div id="printReport"></div>
 
 <script>
-const STORAGE_KEY="expo_judge_pro_v8_2";
-const DRAFT_KEY="expo_judge_pro_v8_2_draft";
+const STORAGE_KEY="expo_judge_pro_v9_2";
+const DRAFT_KEY="expo_judge_pro_v9_2_draft";
+const END_KEY="expo_judge_pro_v9_2_end";
 const CRITERIA=[["innovation","Innovation"],["practical","Practical Use"],["technical","Technical Quality"],["presentation","Presentation"],["future","Future Scope"]];
 let currentIndex=-1;
 let suppressDraftSave=false;
 
-function init(){buildCriteria();attachEvents();resetForm();restoreDraftIfAny();renderAll();updateSummary();updateHeader();}
+function init(){buildCriteria();attachEvents();resetForm();restoreDraftIfAny();renderAll();updateSummary();updateHeader();syncPdfState();}
 function buildCriteria(){criteria.innerHTML="";CRITERIA.forEach(([key,label])=>{const div=document.createElement("div");div.className="criterion";div.innerHTML='<div class="criterion-head"><div class="criterion-name">'+label+'</div><div class="pill"><span id="'+key+'Val">4</span>/5</div></div><div class="stars" id="'+key+'Stars"></div><div class="tiny">Tap 1 to 5 stars</div>';criteria.appendChild(div);const row=div.querySelector(".stars");for(let i=1;i<=5;i++){const b=document.createElement("button");b.type="button";b.className="star-btn"+(i<=4?" active":"");b.textContent="★";b.dataset.value=String(i);b.addEventListener("click",()=>setScore(key,i));row.appendChild(b);}});}
-function attachEvents(){saveBtn.addEventListener("click",()=>save(false));saveNextBtn.addEventListener("click",()=>save(true));remarkBtn.addEventListener("click",generateRemark);innovationBtn.addEventListener("click",markInnovationCandidate);prevBtn.addEventListener("click",prev);nextBtn.addEventListener("click",next);newBtn.addEventListener("click",newStall);deleteBtn.addEventListener("click",deleteEntry);csvBtn.addEventListener("click",exportCSV);pdfBtn.addEventListener("click",printFinalPDF);clearBtn.addEventListener("click",clearAll);["judgeName","panelName","stallName","department","stallNo","team","verdict","strengths","improvements","notes","remark"].forEach(id=>{const el=document.getElementById(id);el.addEventListener("input",saveDraft);el.addEventListener("change",saveDraft);});window.addEventListener("beforeunload",saveDraft);}
+function attachEvents(){saveBtn.addEventListener("click",()=>save(false));saveNextBtn.addEventListener("click",()=>save(true));remarkBtn.addEventListener("click",generateRemark);innovationBtn.addEventListener("click",markInnovationCandidate);prevBtn.addEventListener("click",prev);nextBtn.addEventListener("click",next);newBtn.addEventListener("click",newStall);deleteBtn.addEventListener("click",deleteEntry);csvBtn.addEventListener("click",exportCSV);pdfBtn.addEventListener("click",printFinalPDF);clearBtn.addEventListener("click",clearAll);endBtn.addEventListener("click",endJudgement);["judgeName","panelName","expoName","stallName","department","stallNo","team","verdict","strengths","improvements","notes","remark"].forEach(id=>{const el=document.getElementById(id);el.addEventListener("input",saveDraft);el.addEventListener("change",saveDraft);});window.addEventListener("beforeunload",saveDraft);}
 function loadEntries(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");}catch{return [];}}
 function saveEntries(arr){localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));}
 function loadDraft(){try{return JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");}catch{return null;}}
 function clearDraft(){localStorage.removeItem(DRAFT_KEY);draftNotice.style.display="none";}
 function saveDraft(){if(suppressDraftSave)return;const draft=collectDraftData();if(isDraftEmpty(draft)){localStorage.removeItem(DRAFT_KEY);draftNotice.style.display="none";return;}localStorage.setItem(DRAFT_KEY,JSON.stringify({...draft,savedAt:new Date().toLocaleString()}));}
-function collectDraftData(){const d={judgeName:judgeName.value.trim(),panelName:panelName.value.trim(),stallName:stallName.value.trim(),department:department.value.trim(),stallNo:stallNo.value.trim(),team:team.value.trim(),verdict:verdict.value,strengths:strengths.value.trim(),improvements:improvements.value.trim(),notes:notes.value.trim(),remark:remark.value.trim()};CRITERIA.forEach(([key])=>d[key]=Number(document.getElementById(key+"Val").textContent));return d;}
-function isDraftEmpty(d){return !d.judgeName&&!d.panelName&&!d.stallName&&!d.department&&!d.stallNo&&!d.team&&!d.strengths&&!d.improvements&&!d.notes&&!d.remark;}
+function collectDraftData(){const d={judgeName:judgeName.value.trim(),panelName:panelName.value.trim(),expoName:expoName.value.trim(),stallName:stallName.value.trim(),department:department.value.trim(),stallNo:stallNo.value.trim(),team:team.value.trim(),verdict:verdict.value,strengths:strengths.value.trim(),improvements:improvements.value.trim(),notes:notes.value.trim(),remark:remark.value.trim()};CRITERIA.forEach(([key])=>d[key]=Number(document.getElementById(key+"Val").textContent));return d;}
+function isDraftEmpty(d){return !d.judgeName&&!d.panelName&&!d.expoName&&!d.stallName&&!d.department&&!d.stallNo&&!d.team&&!d.strengths&&!d.improvements&&!d.notes&&!d.remark;}
 function restoreDraftIfAny(){const draft=loadDraft();if(!draft)return;suppressDraftSave=true;fillForm(draft);suppressDraftSave=false;updateSummary();draftNotice.textContent="Recovered unsaved draft from "+(draft.savedAt||"earlier session")+".";draftNotice.style.display="block";setStatus("Draft restored");}
 function setScore(name,val){document.getElementById(name+"Val").textContent=String(val);const row=document.getElementById(name+"Stars");row.querySelectorAll(".star-btn").forEach(b=>b.classList.toggle("active",Number(b.dataset.value)<=Number(val)));updateSummary();setStatus("Changes not saved");saveDraft();}
 function updateSummary(){let totalVal=0;CRITERIA.forEach(([key])=>totalVal+=Number(document.getElementById(key+"Val").textContent));totalDisplay.textContent=String(totalVal);averageDisplay.textContent=(totalVal/CRITERIA.length).toFixed(1);renderMiniScores();}function renderMiniScores(){scoreMini.innerHTML=CRITERIA.map(([key,label])=>{const v=Number(document.getElementById(key+"Val").textContent);const w=Math.max(0,Math.min(100,v*20));return `<div class="score-row"><div class="score-head"><span>${label}</span><span>${v}/5</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${w}%"></div></div></div>`;}).join("");}
-function getData(){const d={judgeName:judgeName.value.trim(),panelName:panelName.value.trim(),stallName:stallName.value.trim(),department:department.value.trim(),stallNo:stallNo.value.trim(),team:team.value.trim(),verdict:verdict.value,strengths:strengths.value.trim(),improvements:improvements.value.trim(),notes:notes.value.trim(),remark:remark.value.trim(),total:Number(totalDisplay.textContent),average:Number(averageDisplay.textContent),updatedAt:new Date().toLocaleString(),innovationAwardCandidate:false};CRITERIA.forEach(([key])=>d[key]=Number(document.getElementById(key+"Val").textContent));return d;}
-function fillForm(d){judgeName.value=d.judgeName||"";panelName.value=d.panelName||"";stallName.value=d.stallName||"";department.value=d.department||"";stallNo.value=d.stallNo||"";team.value=d.team||"";verdict.value=d.verdict||"Excellent";strengths.value=d.strengths||"";improvements.value=d.improvements||"";notes.value=d.notes||"";remark.value=d.remark||"";CRITERIA.forEach(([key])=>setScore(key,d[key]||4));updateSummary();}
-function resetForm(){suppressDraftSave=true;judgeName.value="";panelName.value="";stallName.value="";department.value="";stallNo.value="";team.value="";verdict.value="Excellent";strengths.value="";improvements.value="";notes.value="";remark.value="";CRITERIA.forEach(([key])=>setScore(key,4));updateSummary();suppressDraftSave=false;}
-function save(goNext){const d=getData();if(!d.stallName){d.stallName=d.stallNo?"Stall "+d.stallNo:"Unnamed Stall";stallName.value=d.stallName;}if(!d.judgeName){alert("Enter judge name");return;}if(!d.remark){d.remark=buildRemark(d.average);remark.value=d.remark;}const arr=loadEntries();if(currentIndex===-1){d.createdAt=new Date().toLocaleString();arr.push(d);currentIndex=arr.length-1;}else{d.createdAt=arr[currentIndex].createdAt||new Date().toLocaleString();d.innovationAwardCandidate=!!arr[currentIndex].innovationAwardCandidate;arr[currentIndex]=d;}saveEntries(arr);clearDraft();renderAll();updateHeader();setStatus("Saved");if(goNext){const keepJudge=judgeName.value,keepPanel=panelName.value;currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;saveDraft();updateHeader();setStatus("Saved. Ready for next stall");}}
+function getData(){const d={judgeName:judgeName.value.trim(),panelName:panelName.value.trim(),expoName:expoName.value.trim(),stallName:stallName.value.trim(),department:department.value.trim(),stallNo:stallNo.value.trim(),team:team.value.trim(),verdict:verdict.value,strengths:strengths.value.trim(),improvements:improvements.value.trim(),notes:notes.value.trim(),remark:remark.value.trim(),total:Number(totalDisplay.textContent),average:Number(averageDisplay.textContent),updatedAt:new Date().toLocaleString(),innovationAwardCandidate:false};CRITERIA.forEach(([key])=>d[key]=Number(document.getElementById(key+"Val").textContent));return d;}
+function fillForm(d){judgeName.value=d.judgeName||"";panelName.value=d.panelName||"";expoName.value=d.expoName||"";stallName.value=d.stallName||"";department.value=d.department||"";stallNo.value=d.stallNo||"";team.value=d.team||"";verdict.value=d.verdict||"Excellent";strengths.value=d.strengths||"";improvements.value=d.improvements||"";notes.value=d.notes||"";remark.value=d.remark||"";CRITERIA.forEach(([key])=>setScore(key,d[key]||4));updateSummary();}
+function resetForm(){suppressDraftSave=true;judgeName.value="";panelName.value="";expoName.value="";stallName.value="";department.value="";stallNo.value="";team.value="";verdict.value="Excellent";strengths.value="";improvements.value="";notes.value="";remark.value="";CRITERIA.forEach(([key])=>setScore(key,4));updateSummary();suppressDraftSave=false;}
+function save(goNext){const d=getData();if(!d.stallName){d.stallName=d.stallNo?"Stall "+d.stallNo:"Unnamed Stall";stallName.value=d.stallName;}if(!d.judgeName){alert("Enter judge name");return;}if(!d.remark){d.remark=buildRemark(d.average);remark.value=d.remark;}const arr=loadEntries();if(currentIndex===-1){d.createdAt=new Date().toLocaleString();arr.push(d);currentIndex=arr.length-1;}else{d.createdAt=arr[currentIndex].createdAt||new Date().toLocaleString();d.innovationAwardCandidate=!!arr[currentIndex].innovationAwardCandidate;arr[currentIndex]=d;}saveEntries(arr);clearDraft();renderAll();updateHeader();setStatus("Saved");if(goNext){const keepJudge=judgeName.value,keepPanel=panelName.value,keepExpo=expoName.value;currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;expoName.value=keepExpo;saveDraft();updateHeader();setStatus("Saved. Ready for next stall");}}
 function markInnovationCandidate(){const arr=loadEntries();if(currentIndex===-1){alert("Save the stall first, then mark innovation candidate.");return;}arr[currentIndex].innovationAwardCandidate=true;arr[currentIndex].updatedAt=new Date().toLocaleString();saveEntries(arr);renderAll();setStatus("Marked for innovation award");}
-function newStall(){const keepJudge=judgeName.value,keepPanel=panelName.value;currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;clearDraft();saveDraft();updateHeader();setStatus("New blank stall");}
+function newStall(){const keepJudge=judgeName.value,keepPanel=panelName.value,keepExpo=expoName.value;currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;expoName.value=keepExpo;clearDraft();saveDraft();updateHeader();setStatus("New blank stall");}
 function prev(){const arr=loadEntries();if(!arr.length){alert("No saved stalls yet");return;}if(currentIndex===-1)currentIndex=arr.length-1;else currentIndex=Math.max(0,currentIndex-1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;clearDraft();updateHeader();setStatus("Viewing saved stall");}
 function next(){const arr=loadEntries();if(!arr.length){alert("No saved stalls yet");return;}if(currentIndex===-1)currentIndex=0;else currentIndex=Math.min(arr.length-1,currentIndex+1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;clearDraft();updateHeader();setStatus("Viewing saved stall");}
-function deleteEntry(){const arr=loadEntries();if(currentIndex===-1){alert("Open a saved stall first");return;}if(!confirm("Delete this saved stall?"))return;const keepJudge=judgeName.value,keepPanel=panelName.value;arr.splice(currentIndex,1);saveEntries(arr);if(!arr.length){currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;saveDraft();}else{currentIndex=Math.min(currentIndex,arr.length-1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;}renderAll();updateHeader();setStatus("Deleted");}
+function deleteEntry(){const arr=loadEntries();if(currentIndex===-1){alert("Open a saved stall first");return;}if(!confirm("Delete this saved stall?"))return;const keepJudge=judgeName.value,keepPanel=panelName.value,keepExpo=expoName.value;arr.splice(currentIndex,1);saveEntries(arr);if(!arr.length){currentIndex=-1;resetForm();judgeName.value=keepJudge;panelName.value=keepPanel;expoName.value=keepExpo;saveDraft();}else{currentIndex=Math.min(currentIndex,arr.length-1);suppressDraftSave=true;fillForm(arr[currentIndex]);suppressDraftSave=false;}renderAll();updateHeader();setStatus("Deleted");}
 function openEntry(i){const arr=loadEntries();currentIndex=i;suppressDraftSave=true;fillForm(arr[i]);suppressDraftSave=false;clearDraft();updateHeader();setStatus("Viewing saved stall");window.scrollTo({top:0,behavior:"smooth"});}
 function sortRanked(entries){return [...entries].sort((a,b)=>{if(Number(b.total)!==Number(a.total))return Number(b.total)-Number(a.total);if(Number(b.innovation)!==Number(a.innovation))return Number(b.innovation)-Number(a.innovation);return (a.stallName||"").localeCompare(b.stallName||"");});}
 function renderAll(){const entries=loadEntries();renderLeaderboard(entries);renderInnovationAward(entries);renderRanking(entries);renderSavedEntries(entries);}
@@ -193,10 +196,13 @@ function buildRemark(avg){if(avg>4.5)return "Excellent project with strong imple
 function generateRemark(){remark.value=buildRemark(Number(averageDisplay.textContent));saveDraft();setStatus("Remark generated");}
 function updateHeader(){stallCounter.textContent=currentIndex===-1?"New Stall":`Stall ${currentIndex+1} of ${loadEntries().length}`;}
 function setStatus(msg){saveStatus.textContent=msg;}
-function clearAll(){if(!confirm("Clear all saved stall feedback?"))return;localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(DRAFT_KEY);currentIndex=-1;resetForm();renderAll();updateHeader();draftNotice.style.display="none";setStatus("All saved feedback cleared");}
+function clearAll(){if(!confirm("Clear all saved stall feedback?"))return;localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(DRAFT_KEY);localStorage.removeItem(END_KEY);currentIndex=-1;resetForm();renderAll();updateHeader();draftNotice.style.display="none";syncPdfState();setStatus("All saved feedback cleared");}
+function syncPdfState(){const ended=localStorage.getItem(END_KEY)==="yes";pdfBtn.disabled=!ended;pdfStatusNote.innerHTML=ended?'Judgement ended. Final PDF report is enabled. You can still edit entries if needed and generate the report again.':'Finish judging first. Then click <strong>End Judgement</strong> to enable the final PDF report.';endBtn.textContent=ended?"Judgement Ended":"End Judgement";}
+function endJudgement(){if(loadEntries().length===0){alert("Save at least one stall before ending judgement.");return;}localStorage.setItem(END_KEY,"yes");syncPdfState();setStatus("Judgement ended. Final PDF enabled");}
 function exportCSV(){const arr=sortRanked(loadEntries());if(!arr.length){alert("No saved stalls to export");return;}const headers=["Rank","Stall Name","Department","Stall No","Team","Verdict","Innovation","Practical Use","Technical Quality","Presentation","Future Scope","Total","Average","Strengths","Improvements","Notes","Remark","Created At","Updated At"];const rows=arr.map((s,idx)=>[idx+1,s.stallName,s.department,s.stallNo,s.team,s.verdict,s.innovation,s.practical,s.technical,s.presentation,s.future,s.total,s.average,s.strengths,s.improvements,s.notes,s.remark,s.createdAt,s.updatedAt]);const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="expo-stall-feedback-v8-2.csv";a.click();URL.revokeObjectURL(url);setStatus("CSV exported");}
 
 function printFinalPDF(){
+  if(localStorage.getItem(END_KEY)!=="yes"){alert("Click End Judgement first to enable the final PDF report.");return;}
   const entries = sortRanked(loadEntries());
   if(!entries.length){ alert("No saved stalls to print"); return; }
 
@@ -235,6 +241,43 @@ function printFinalPDF(){
     </style>
   </head>
   <body>
+    <section class="report-page">
+      <div style="min-height:277mm;border-radius:20px;padding:16mm;box-sizing:border-box;background:
+      radial-gradient(circle at top right,#dbeafe 0%,#eff6ff 26%,#ffffff 65%),
+      linear-gradient(135deg,#1d4ed8 0%,#60a5fa 100%);color:#0f172a;position:relative;overflow:hidden;border:2px solid #1d4ed8;">
+        <div style="position:absolute;inset:10px;border:1px solid rgba(255,255,255,.75);border-radius:16px;"></div>
+        <div style="position:relative;z-index:1;background:rgba(255,255,255,.84);border-radius:18px;padding:16mm;min-height:240mm;box-shadow:0 10px 30px rgba(0,0,0,.08);">
+          <div style="display:inline-block;padding:8px 14px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-weight:800;font-size:13px;">Engineering Expo Final Evaluation Report</div>
+          <div style="font-size:34px;font-weight:900;margin-top:14px;line-height:1.15;">${escapeHtml(entries[0]?.expoName || "Project Expo")}</div>
+          <div style="margin-top:8px;color:#475467;font-size:16px;">Digital judging summary prepared for final submission.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;">
+            <div style="border:1px solid #dbeafe;border-radius:14px;padding:12px;background:#f8fbff;">
+              <div style="font-size:12px;color:#475467;">Judge Name</div>
+              <div style="font-size:20px;font-weight:800;margin-top:4px;">${escapeHtml(entries[0]?.judgeName || "-")}</div>
+            </div>
+            <div style="border:1px solid #dbeafe;border-radius:14px;padding:12px;background:#f8fbff;">
+              <div style="font-size:12px;color:#475467;">Panel / Committee</div>
+              <div style="font-size:20px;font-weight:800;margin-top:4px;">${escapeHtml(entries[0]?.panelName || "-")}</div>
+            </div>
+          </div>
+          <div style="margin-top:16px;border:1px solid #dbeafe;border-radius:14px;padding:14px;background:#ffffff;">
+            <div style="font-size:12px;color:#475467;">Total Contestants</div>
+            <div style="font-size:28px;font-weight:900;margin-top:4px;">${entries.length}</div>
+          </div>
+          <div style="margin-top:18px;">
+            <div style="font-size:16px;font-weight:800;margin-bottom:10px;">Contestant List</div>
+            <div style="columns:2;column-gap:20px;font-size:11px;line-height:1.55;">
+              ${entries.map((s,i)=>`<div style="break-inside:avoid;margin-bottom:4px;"><strong>${i+1}.</strong> ${escapeHtml(s.stallName || "-")} ${s.department ? `- ${escapeHtml(s.department)}` : ""} ${s.stallNo ? `(Stall ${escapeHtml(s.stallNo)})` : ""}</div>`).join("")}
+            </div>
+          </div>
+          <div style="position:absolute;left:16mm;right:16mm;bottom:16mm;display:flex;justify-content:space-between;align-items:end;">
+            <div style="font-size:12px;color:#475467;">Generated on ${escapeHtml(new Date().toLocaleString())}</div>
+            <div style="font-size:12px;color:#475467;font-weight:700;">Expo Judge Pro Report</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="report-page"><div class="page-shell"><div class="page-accent"></div><div class="report-content">
       <div class="report-title">🏆 Top 3 Leaderboard</div>
       <table class="report-table">
