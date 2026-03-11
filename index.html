@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Expo Judge Pro v8.2</title>
+<title>Expo Judge Pro v9 UI Final</title>
 <meta name="theme-color" content="#1d4ed8">
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#d8dee8;--primary:#1d4ed8;--primary-soft:#eaf1ff;--success:#15803d;--success-soft:#edfdf3;--warn:#b45309;--warn-soft:#fff7ed;--danger:#b42318;--danger-soft:#fff1f3;--shadow:0 10px 28px rgba(16,24,40,.07);--star:#f59e0b}
@@ -62,13 +62,56 @@ button{border:none;border-radius:12px;padding:12px 14px;font-weight:800;cursor:p
  #printReport,#printReport *{visibility:visible!important}
  #printReport{display:block!important;position:absolute;left:0;top:0;width:100%}
 }
+
+html{scroll-behavior:smooth}
+.app-header{
+  background:linear-gradient(135deg,#1d4ed8,#2563eb);
+  color:#fff;
+  padding:20px;
+  border-radius:18px;
+  margin-bottom:16px;
+  box-shadow:0 10px 28px rgba(16,24,40,.07)
+}
+.app-header .title{font-size:24px;font-weight:800}
+.app-header .subtitle{opacity:.9;font-size:14px;margin-top:4px}
+.card{transition:.2s}
+.criterion{background:#f8fafc;border:1px solid #e2e8f0;transition:.2s}
+.criterion:hover{box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.star-btn{transition:.15s}
+.star-btn:hover{transform:scale(1.05)}
+button{transition:.15s}
+button:hover{transform:translateY(-1px)}
+.action-bar{
+  position:sticky;
+  bottom:0;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(10px);
+  padding:10px;
+  border-top:1px solid #e5e7eb;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  z-index:10;
+  margin:-4px -16px -16px;
+  border-radius:0 0 18px 18px
+}
+.score-mini{margin-top:12px}
+@media (max-width:768px){
+  .card{padding:14px}
+  .star-btn{width:46px;height:42px}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
+  <div class="app-header">
+    <div class="title">🏆 Expo Judge Pro</div>
+    <div class="subtitle">Engineering Expo Evaluation System</div>
+  </div>
 <div class="card">
 <div class="topbar">
-<div><h1>Expo Judge Pro v8.2</h1><div class="muted">Corrected print flow: only the report prints, with proper ordering and pagination.</div></div>
+<div><h1>Expo Judge Pro v8.2</h1><div class="muted">Refined UI/UX with the same working logic, persistence, and report flow.</div></div>
 <div><div class="badge" id="stallCounter">New Stall</div><div class="tiny" id="saveStatus">Not saved yet</div></div>
 </div>
 <div id="draftNotice" class="notice" style="display:none;"></div>
@@ -86,7 +129,7 @@ button{border:none;border-radius:12px;padding:12px 14px;font-weight:800;cursor:p
 <label for="strengths">Strengths</label><textarea id="strengths"></textarea>
 <label for="improvements">Improvements</label><textarea id="improvements"></textarea>
 <label for="notes">Notes</label><textarea id="notes"></textarea>
-<div class="btns"><button class="primary" id="saveBtn" type="button">Save</button><button class="success" id="saveNextBtn" type="button">Save & Next</button><button class="ghost" id="remarkBtn" type="button">Generate Remark</button><button class="warn" id="innovationBtn" type="button">Innovation Candidate</button><button class="danger" id="deleteBtn" type="button">Delete</button></div>
+<div class="action-bar"><button class="primary" id="saveBtn" type="button">Save</button><button class="success" id="saveNextBtn" type="button">Save & Next</button><button class="ghost" id="remarkBtn" type="button">Generate Remark</button><button class="warn" id="innovationBtn" type="button">Innovation Candidate</button><button class="danger" id="deleteBtn" type="button">Delete</button></div>
 </div>
 
 <div class="card">
@@ -129,7 +172,7 @@ function collectDraftData(){const d={judgeName:judgeName.value.trim(),panelName:
 function isDraftEmpty(d){return !d.judgeName&&!d.panelName&&!d.stallName&&!d.department&&!d.stallNo&&!d.team&&!d.strengths&&!d.improvements&&!d.notes&&!d.remark;}
 function restoreDraftIfAny(){const draft=loadDraft();if(!draft)return;suppressDraftSave=true;fillForm(draft);suppressDraftSave=false;updateSummary();draftNotice.textContent="Recovered unsaved draft from "+(draft.savedAt||"earlier session")+".";draftNotice.style.display="block";setStatus("Draft restored");}
 function setScore(name,val){document.getElementById(name+"Val").textContent=String(val);const row=document.getElementById(name+"Stars");row.querySelectorAll(".star-btn").forEach(b=>b.classList.toggle("active",Number(b.dataset.value)<=Number(val)));updateSummary();setStatus("Changes not saved");saveDraft();}
-function updateSummary(){let totalVal=0;CRITERIA.forEach(([key])=>totalVal+=Number(document.getElementById(key+"Val").textContent));totalDisplay.textContent=String(totalVal);averageDisplay.textContent=(totalVal/CRITERIA.length).toFixed(1);}
+function updateSummary(){let totalVal=0;CRITERIA.forEach(([key])=>totalVal+=Number(document.getElementById(key+"Val").textContent));totalDisplay.textContent=String(totalVal);averageDisplay.textContent=(totalVal/CRITERIA.length).toFixed(1);renderMiniScores();}function renderMiniScores(){scoreMini.innerHTML=CRITERIA.map(([key,label])=>{const v=Number(document.getElementById(key+"Val").textContent);const w=Math.max(0,Math.min(100,v*20));return `<div class="score-row"><div class="score-head"><span>${label}</span><span>${v}/5</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${w}%"></div></div></div>`;}).join("");}
 function getData(){const d={judgeName:judgeName.value.trim(),panelName:panelName.value.trim(),stallName:stallName.value.trim(),department:department.value.trim(),stallNo:stallNo.value.trim(),team:team.value.trim(),verdict:verdict.value,strengths:strengths.value.trim(),improvements:improvements.value.trim(),notes:notes.value.trim(),remark:remark.value.trim(),total:Number(totalDisplay.textContent),average:Number(averageDisplay.textContent),updatedAt:new Date().toLocaleString(),innovationAwardCandidate:false};CRITERIA.forEach(([key])=>d[key]=Number(document.getElementById(key+"Val").textContent));return d;}
 function fillForm(d){judgeName.value=d.judgeName||"";panelName.value=d.panelName||"";stallName.value=d.stallName||"";department.value=d.department||"";stallNo.value=d.stallNo||"";team.value=d.team||"";verdict.value=d.verdict||"Excellent";strengths.value=d.strengths||"";improvements.value=d.improvements||"";notes.value=d.notes||"";remark.value=d.remark||"";CRITERIA.forEach(([key])=>setScore(key,d[key]||4));updateSummary();}
 function resetForm(){suppressDraftSave=true;judgeName.value="";panelName.value="";stallName.value="";department.value="";stallNo.value="";team.value="";verdict.value="Excellent";strengths.value="";improvements.value="";notes.value="";remark.value="";CRITERIA.forEach(([key])=>setScore(key,4));updateSummary();suppressDraftSave=false;}
